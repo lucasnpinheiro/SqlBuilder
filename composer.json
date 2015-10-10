@@ -1,0 +1,25 @@
+{
+    "name": "jbzoo/skeleton-php",
+    "type": "library",
+    "description": "",
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "keywords": [],
+    "authors": [
+        {
+            "name": "SmetDenis",
+            "email": "denis@jbzoo.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "JBZoo\\SqlBuilder\\": "src"
+        }
+    },
+    "support": {
+        "issues": "https://github.com/JBZoo/SqlBuilder/issues"
+    }
+}
