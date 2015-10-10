@@ -1,7 +1,7 @@
 {
-    "name": "jbzoo/skeleton-php",
+    "name": "jbzoo/sqlbuilder",
     "type": "library",
-    "description": "",
+    "description": "Simple SQL query constructor",
     "license": "MIT",
     "minimum-stability": "stable",
     "keywords": [],
