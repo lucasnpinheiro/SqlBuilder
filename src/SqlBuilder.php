@@ -34,7 +34,7 @@ class SqlBuilder
      */
     static public function set($type, $connection)
     {
-        $className = 'JBZoo\\SqlBuilder\\Driver\\' . $type;
+        $className = 'JBZoo\\SqlBuilder\\Driver\\' . ucfirst(strtolower($type));
 
         if (class_exists($className)) {
             self::$driver = new $className($connection);
