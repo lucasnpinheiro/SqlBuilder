@@ -1,4 +1,4 @@
-# JBZoo SqlBuilder  [![Build Status](https://travis-ci.org/JBZoo/SqlBuilder.svg?branch=master)](https://travis-ci.org/JBZoo/SqlBuilder)
+# JBZoo SqlBuilder  [![Build Status](https://travis-ci.org/JBZoo/SqlBuilder.svg?branch=master)](https://travis-ci.org/JBZoo/SqlBuilder)   [![Coverage Status](https://coveralls.io/repos/JBZoo/SqlBuilder/badge.svg?branch=master&service=github)](https://coveralls.io/github/JBZoo/SqlBuilder?branch=master)
 
 #### PHP library description
 
