@@ -10,6 +10,7 @@
  * @license   MIT
  * @copyright Copyright (C) JBZoo.com,  All rights reserved.
  * @link      https://github.com/JBZoo/SqlBuilder
+ * @author    Denis Smetannikov <denis@jbzoo.com>
  */
 
 namespace JBZoo\SqlBuilder;
@@ -20,13 +21,36 @@ namespace JBZoo\SqlBuilder;
  */
 class SqlBuilder
 {
+    /**
+     * @var Driver\Driver
+     */
+    protected static $driver = null;
 
     /**
-     * @return string
+     * @param string $type
+     * @param mixed  $connection
+     * @return Driver\Driver
+     * @throws Exception
      */
-    public function doSomeStreetMagic()
+    static public function set($type, $connection)
     {
-        return 'street magic';
+        $className = 'JBZoo\\SqlBuilder\\Driver\\' . $type;
+
+        if (class_exists($className)) {
+            self::$driver = new $className($connection);
+        } else {
+            throw new Exception('Undefined driver type - "' . $type . '"');
+        }
+
+        return self::$driver;
+    }
+
+    /**
+     * @return Driver\Driver|null
+     */
+    static public function get()
+    {
+        return self::$driver;
     }
 
 }

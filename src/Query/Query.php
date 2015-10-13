@@ -13,13 +13,21 @@
  * @author    Denis Smetannikov <denis@jbzoo.com>
  */
 
-namespace JBZoo\SqlBuilder;
+namespace JBZoo\SqlBuilder\Query;
 
+use JBZoo\SqlBuilder\SqlBuilder;
 
-// @codingStandardsIgnoreFile
-// @codeCoverageIgnoreStart
-
-
-
-
-// @codeCoverageIgnoreEnd
+/**
+ * Class Query
+ * @package JBZoo\SqlBuilder
+ */
+abstract class Query
+{
+    /**
+     * @return \JBZoo\SqlBuilder\Driver\Driver
+     */
+    public function getDriver()
+    {
+        return SqlBuilder::get();
+    }
+}

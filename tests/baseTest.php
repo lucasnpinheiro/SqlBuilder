@@ -10,28 +10,22 @@
  * @license   MIT
  * @copyright Copyright (C) JBZoo.com,  All rights reserved.
  * @link      https://github.com/JBZoo/SqlBuilder
+ * @author    Denis Smetannikov <denis@jbzoo.com>
  */
 
 namespace JBZoo\SqlBuilder;
 
 /**
- * Class Exception
+ * Class BaseTest
  * @package JBZoo\SqlBuilder
  */
 class BaseTest extends PHPUnit
 {
 
-    public function testShouldDoSomeStreetMagic()
+    public function testDriverInit()
     {
-        $obj = new SqlBuilder();
-        self::assertEquals('street magic', $obj->doSomeStreetMagic());
-    }
+        $driver = SqlBuilder::get();
 
-    /**
-     * @expectedException \JBZoo\SqlBuilder\Exception
-     */
-    public function testShouldShowException()
-    {
-        throw new Exception('Test message');
+        self::assertInstanceOf('\\JBZoo\\SqlBuilder\\Driver\\Driver', $driver);
     }
 }

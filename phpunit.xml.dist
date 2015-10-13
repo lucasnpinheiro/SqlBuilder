@@ -14,6 +14,14 @@
          verbose="true"
         >
 
+    <php>
+        <env name="mysql_host" value="127.0.0.1"/>
+        <env name="mysql_db"   value="sqlbuilder"/>
+        <env name="mysql_user" value="root"/>
+        <env name="mysql_pass" value=""/>
+        <env name="mysql_port" value="3306"/>
+    </php>
+
     <testsuites>
         <testsuite name="JBZoo SqlBuilder suite">
             <directory suffix="Test.php">./tests</directory>

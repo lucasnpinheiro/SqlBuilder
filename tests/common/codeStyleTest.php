@@ -10,6 +10,7 @@
  * @license   MIT
  * @copyright Copyright (C) JBZoo.com,  All rights reserved.
  * @link      https://github.com/JBZoo/SqlBuilder
+ * @author    Denis Smetannikov <denis@jbzoo.com>
  */
 
 namespace JBZoo\SqlBuilder;
@@ -27,6 +28,7 @@ class CodeStyleTest extends PHPUnit
         '_NAMESPACE_'  => 'JBZoo\_PACKAGE_',
         '_PACKAGE_'    => 'SqlBuilder', // change me!
         '_LICENSE_'    => 'MIT',
+        '_AUTHOR_'     => 'Denis Smetannikov <denis@jbzoo.com>',
         '_COPYRIGHTS_' => 'Copyright (C) JBZoo.com,  All rights reserved.',
     );
 
@@ -103,16 +105,15 @@ class CodeStyleTest extends PHPUnit
 
             // build copyrights
             $validHeader = $this->validHeader;
-            if (isset($this->replace['__AUTHOR__'])) {
-                $validHeader[] = ' * @author    __AUTHOR__';
+            if (isset($this->replace['_AUTHOR_'])) {
+                $validHeader[] = ' * @author    _AUTHOR_';
             }
             $validHeader[] = ' */';
 
-            $namespace = $this->replaceCopyright('namespace __NAMESPACE__;');
+            $namespace = $this->replaceCopyright('namespace _NAMESPACE_');
             if (strpos($content, $namespace)) {
                 $validHeader[] = '';
-                $validHeader[] = 'namespace __NAMESPACE__;';
-                $validHeader[] = '';
+                $validHeader[] = 'namespace _NAMESPACE_';
             }
 
             $valid = $this->replaceCopyright(implode($validHeader, $this->le));

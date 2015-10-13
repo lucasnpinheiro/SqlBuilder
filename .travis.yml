@@ -1,3 +1,6 @@
+services:
+  - mysql
+
 language: php
 
 php:
@@ -16,9 +19,13 @@ matrix:
 
 before_script:
   # Composer
+  - phpenv rehash
   - composer self-update
   - composer install --no-interaction
   - composer validate
+
+  # prepare database
+  - mysql -e 'create database sqlbuilder;'
 
   # install testing tools
   - composer require phpunit/phpunit:^4.8
