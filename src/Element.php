@@ -69,12 +69,4 @@ class Element
         $this->elements = array_merge($this->elements, (array)$elements);
     }
 
-    /**
-     * Gets the elements of this element.
-     * @return  string
-     */
-    public function getElements()
-    {
-        return $this->elements;
-    }
 }

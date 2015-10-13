@@ -81,7 +81,7 @@ abstract class Driver
     public function quoteName($name, $as = null)
     {
         if (is_string($name)) {
-            $quotedName = $this->quoteNameStr(explode('.', $name));
+            $quotedName = $this->quoteNameStr(explode('.', trim($name, '.')));
 
             $quotedAs = '';
 
@@ -98,7 +98,7 @@ abstract class Driver
                 foreach ($name as $str) {
                     $fin[] = $this->quoteName($str);
                 }
-            } elseif (is_array($name) && (count($name) == count($as))) {
+            } elseif (is_array($name) && (count($name) === count($as))) {
                 $count = count($name);
 
                 for ($i = 0; $i < $count; $i++) {
@@ -120,18 +120,12 @@ abstract class Driver
     {
         $parts = array();
 
-        $q = '`';
-
         foreach ($strArr as $part) {
-            if (is_null($part)) {
+            if (!$part) {
                 continue;
             }
 
-            if (strlen($q) == 1) {
-                $parts[] = $q . $part . $q;
-            } else {
-                $parts[] = $q{0} . $part . $q{1};
-            }
+            $parts[] = '`' . $part . '`';
         }
 
         return implode('.', $parts);

@@ -49,6 +49,9 @@ class SelectTest extends PHPUnit
 
         $select = $this->_select()->from('table', 'tTable');
         self::assertEquals((string)$select, "SELECT * FROM `table` AS tTable");
+
+        $select = $this->_select(array('table', 'tTable'));
+        self::assertEquals((string)$select, "SELECT * FROM `table` AS tTable");
     }
 
     public function testWhereSimple()
@@ -59,6 +62,15 @@ class SelectTest extends PHPUnit
         self::assertEquals((string)$select, "SELECT * FROM `table` WHERE property = 1");
 
         $select->where('tTable.property = 2');
+        self::assertEquals((string)$select, "SELECT * FROM `table` WHERE property = 1 AND tTable.property = 2");
+
+        // empty conditions
+        $select
+            ->where(null)
+            ->where('')
+            ->where(false)
+            ->where(0);
+
         self::assertEquals((string)$select, "SELECT * FROM `table` WHERE property = 1 AND tTable.property = 2");
     }
 
