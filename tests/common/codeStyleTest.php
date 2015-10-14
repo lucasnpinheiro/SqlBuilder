@@ -10,14 +10,13 @@
  * @license   MIT
  * @copyright Copyright (C) JBZoo.com,  All rights reserved.
  * @link      https://github.com/JBZoo/SqlBuilder
- * @author    Denis Smetannikov <denis@jbzoo.com>
  */
 
-namespace JBZoo\SqlBuilder;
+namespace JBZoo\PHPUnit;
 
 /**
  * Class CodeStyleTest
- * @package JBZoo\SqlBuilder
+ * @package JBZoo\PHPUnit
  */
 class CodeStyleTest extends PHPUnit
 {
@@ -28,8 +27,8 @@ class CodeStyleTest extends PHPUnit
         '_NAMESPACE_'  => 'JBZoo\_PACKAGE_',
         '_PACKAGE_'    => 'SqlBuilder', // change me!
         '_LICENSE_'    => 'MIT',
-        '_AUTHOR_'     => 'Denis Smetannikov <denis@jbzoo.com>',
         '_COPYRIGHTS_' => 'Copyright (C) JBZoo.com,  All rights reserved.',
+        '_AUTHOR_'     => 'Denis Smetannikov <denis@jbzoo.com>',
     );
 
     /**
@@ -55,15 +54,15 @@ class CodeStyleTest extends PHPUnit
      * Ignore list for
      * @var array
      */
-    protected $excludeList = array(
+    protected $excludeFiles = array(
         '.',
         '..',
         '.idea',
         '.git',
         'build',
         'vendor',
-        'composer.phar',
         'composer.lock',
+        'codeStyleTest.php',
     );
 
     /**
@@ -89,7 +88,7 @@ class CodeStyleTest extends PHPUnit
 
         foreach ($files as $file) {
             $content = $this->openFile($file);
-            self::assertNotContains("\r", $content);
+            isNotContain("\r", $content);
         }
     }
 
@@ -112,12 +111,12 @@ class CodeStyleTest extends PHPUnit
 
             $namespace = $this->replaceCopyright('namespace _NAMESPACE_');
             if (strpos($content, $namespace)) {
-                $validHeader[] = '';
-                $validHeader[] = 'namespace _NAMESPACE_';
+                //$validHeader[] = '';
+                //$validHeader[] = 'namespace _NAMESPACE_';
             }
 
             $valid = $this->replaceCopyright(implode($validHeader, $this->le));
-            self::assertContains($valid, $content, 'File has no valid header: ' . $file);
+            isContain($valid, $content, false, 'File has no valid header: ' . $file);
         }
     }
 
@@ -126,12 +125,11 @@ class CodeStyleTest extends PHPUnit
      */
     public function testCyrillic()
     {
-        $files = $this->getFileList(ROOT_PATH, '/src/.*\.php$');
+        $files = $this->getFileList(ROOT_PATH, '[/\\\\](src|tests)[/\\\\].*\.php$');
 
         foreach ($files as $file) {
             $content = $this->openFile($file);
-
-            self::assertEquals(0, preg_match('/[А-Яа-яЁё]/u', $content), 'File has no valid chars: ' . $file);
+            isNotLike('#[А-Яа-яЁё]#u', $content, 'File has no valid chars: ' . $file);
         }
     }
 

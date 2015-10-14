@@ -13,11 +13,11 @@
  * @author    Denis Smetannikov <denis@jbzoo.com>
  */
 
-namespace JBZoo\SqlBuilder;
-
+namespace JBZoo\PHPUnit;
 
 // @codingStandardsIgnoreFile
 // @codeCoverageIgnoreStart
+
 if (!defined('ROOT_PATH')) { // for PHPUnit process isolation
     define('ROOT_PATH', realpath('.'));
 }
@@ -32,7 +32,6 @@ if ($autoload = realpath(ROOT_PATH . '/vendor/autoload.php')) {
 
 
 // test tools and important includes
-require_once ROOT_PATH . '/tests/phpunit.php';
 require_once ROOT_PATH . '/tests/fixtures.php';
 
 

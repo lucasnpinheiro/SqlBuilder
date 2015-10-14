@@ -16,7 +16,7 @@
 namespace JBZoo\SqlBuilder\Driver;
 
 /**
- * Class DriverMySQLi
+ * Class MySQLi
  * @package JBZoo\SqlBuilder\Driver
  */
 class MySQLi extends Driver

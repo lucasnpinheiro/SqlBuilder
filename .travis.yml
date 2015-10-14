@@ -1,7 +1,7 @@
+language: php
+
 services:
   - mysql
-
-language: php
 
 php:
   - 5.3
@@ -9,7 +9,7 @@ php:
   - 5.5
   - 5.6
   - 7.0
-  - hhvm  
+  - hhvm
 
 matrix:
   fast_finish: true
@@ -19,30 +19,31 @@ matrix:
 
 before_script:
   # Composer
-  - phpenv rehash
   - composer self-update
-  - composer install --no-interaction
+  - composer update
   - composer validate
 
-  # prepare database
+  # Prepare database
   - mysql -e 'create database sqlbuilder;'
 
-  # install testing tools
+  # Install testing tools
   - composer require phpunit/phpunit:^4.8
 
-  # install report tools
-  - sh -c 'if [ "$TRAVIS_PHP_VERSION" = "5.5" ]; then
-        composer require satooshi/php-coveralls:dev-master;
-        composer require squizlabs/php_codesniffer:*;
-        composer require sebastian/phpcpd:*;
-        composer require phploc/phploc:*;
-        composer require phpmd/phpmd:^2.2;
-        composer require pdepend/pdepend:^2.1;
+  # Install report tools
+  - sh -c 'if [ "$TRAVIS_PHP_VERSION" = "5.6" ]; then
+        composer require
+          satooshi/php-coveralls:dev-master
+          squizlabs/php_codesniffer:*
+          sebastian/phpcpd:*
+          phploc/phploc:*
+          phpmd/phpmd:^2.2
+          pdepend/pdepend:^2.1
+        ;
     fi;'
 
   # Dirs
   - mkdir -p build/cov
-  - mkdir -p build/logs  
+  - mkdir -p build/logs
   - mkdir -p build/phpunit
   - mkdir -p build/pdepend
 
@@ -55,27 +56,27 @@ script:
 
 after_script:
   # Send to coveralls
-  - sh -c 'if [ "$TRAVIS_PHP_VERSION" = "5.5" ]; then
+  - sh -c 'if [ "$TRAVIS_PHP_VERSION" = "5.6" ]; then
         php vendor/bin/coveralls --verbose;
     fi;'
-      
+
   # Check PSR1,2 src and tests
-  - sh -c 'if [ "$TRAVIS_PHP_VERSION" = "5.5" ]; then
+  - sh -c 'if [ "$TRAVIS_PHP_VERSION" = "5.6" ]; then
         php vendor/bin/phpcs ./src --standard=PSR1,PSR2 --encoding=utf-8 --report-width=160 --tab-width=4 --report=full;
     fi;'
-  
+
   # Try to find copy-paste
-  - sh -c 'if [ "$TRAVIS_PHP_VERSION" = "5.5" ]; then
+  - sh -c 'if [ "$TRAVIS_PHP_VERSION" = "5.6" ]; then
         php vendor/bin/phpcpd ./src --no-interaction --verbose;
     fi;'
 
   # Show code statistic
-  - sh -c 'if [ "$TRAVIS_PHP_VERSION" = "5.5" ]; then
+  - sh -c 'if [ "$TRAVIS_PHP_VERSION" = "5.6" ]; then
         php vendor/bin/phploc ./src --no-interaction --verbose;
     fi;'
 
   # Show code problems
-  - sh -c 'if [ "$TRAVIS_PHP_VERSION" = "5.5" ]; then
+  - sh -c 'if [ "$TRAVIS_PHP_VERSION" = "5.6" ]; then
         php vendor/bin/phpmd ./src text cleancode     --verbose;
         php vendor/bin/phpmd ./src text codesize      --verbose;
         php vendor/bin/phpmd ./src text controversial --verbose;
@@ -85,7 +86,7 @@ after_script:
     fi;'
 
   # Build pdepend stats
-  - sh -c 'if [ "$TRAVIS_PHP_VERSION" = "5.5" ]; then
+  - sh -c 'if [ "$TRAVIS_PHP_VERSION" = "5.6" ]; then
         php vendor/bin/pdepend
           --summary-xml=build/pdepend/summary.xml
           --jdepend-chart=build/pdepend/jdepend.svg

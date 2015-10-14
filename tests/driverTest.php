@@ -13,7 +13,9 @@
  * @author    Denis Smetannikov <denis@jbzoo.com>
  */
 
-namespace JBZoo\SqlBuilder;
+namespace JBZoo\PHPUnit;
+
+use JBZoo\SqlBuilder\SqlBuilder;
 
 /**
  * Class DriverTest
@@ -21,6 +23,25 @@ namespace JBZoo\SqlBuilder;
  */
 class DriverTest extends PHPUnit
 {
+    /**
+     * Performs operation
+     * @throws Exception
+     */
+    protected function setUp()
+    {
+        static $connection;
+        if (is_null($connection)) {
+            $connection = mysqli_connect($_ENV['mysql_host'], $_ENV['mysql_user'], $_ENV['mysql_pass'], $_ENV['mysql_db'], $_ENV['mysql_port']);
+        }
+        SqlBuilder::set('mysqli', $connection);
+    }
+
+    public function testDriverInit()
+    {
+        $driver = SqlBuilder::get();
+        isClass('\JBZoo\SqlBuilder\Driver\Driver', $driver);
+    }
+
     /**
      * @expectedException \JBZoo\SqlBuilder\Exception
      */
@@ -36,13 +57,13 @@ class DriverTest extends PHPUnit
         $test = 'O\'Reilly';
         $suc  = "'O\\'Reilly'";
 
-        self::assertSame($dr->quote($test), $suc);
-        self::assertSame($dr->quote(array($test, $test)), array($suc, $suc));
+        same($dr->quote($test), $suc);
+        same($dr->quote(array($test, $test)), array($suc, $suc));
 
         $test = 'O\'Reilly';
         $suc  = "'O'Reilly'";
-        self::assertSame($dr->quote($test, false), $suc);
-        self::assertSame($dr->quote(array($test, $test), false), array($suc, $suc));
+        same($dr->quote($test, false), $suc);
+        same($dr->quote(array($test, $test), false), array($suc, $suc));
     }
 
 
@@ -50,18 +71,18 @@ class DriverTest extends PHPUnit
     {
         $dr = SqlBuilder::get();
 
-        self::assertSame($dr->quoteName('table'), '`table`');
-        self::assertSame($dr->quoteName('table.field'), '`table`.`field`');
-        self::assertSame($dr->quoteName('table.field.'), '`table`.`field`');
-        self::assertSame($dr->quoteName('.table.field.'), '`table`.`field`');
-        self::assertSame($dr->quoteName('.table.field'), '`table`.`field`');
-        self::assertSame($dr->quoteName('.'), '');
-        self::assertSame($dr->quoteName(''), '');
+        same($dr->quoteName('table'), '`table`');
+        same($dr->quoteName('table.field'), '`table`.`field`');
+        same($dr->quoteName('table.field.'), '`table`.`field`');
+        same($dr->quoteName('.table.field.'), '`table`.`field`');
+        same($dr->quoteName('.table.field'), '`table`.`field`');
+        same($dr->quoteName('.'), '');
+        same($dr->quoteName(''), '');
 
-        self::assertSame($dr->quoteName('table', 'tTable'), '`table` AS `tTable`');
-        self::assertSame($dr->quoteName('table.field', 'tTable.someProp'), '`table`.`field` AS `tTable.someProp`');
+        same($dr->quoteName('table', 'tTable'), '`table` AS `tTable`');
+        same($dr->quoteName('table.field', 'tTable.someProp'), '`table`.`field` AS `tTable.someProp`');
 
-        self::assertSame(
+        same(
             $dr->quoteName(array(
                 'table',
                 array('table', 'table2'),
@@ -72,7 +93,7 @@ class DriverTest extends PHPUnit
             )
         );
 
-        self::assertSame(
+        same(
             $dr->quoteName(
                 array('table', 'table2'),
                 array('tTable', 'tTable2')
@@ -90,7 +111,7 @@ class DriverTest extends PHPUnit
 
         $test = "O'Reilly % _";
 
-        self::assertSame($dr->escape($test, false), "O\\'Reilly % _");
-        self::assertSame($dr->escape($test, true), 'O\\\'Reilly \\% \\_');
+        same($dr->escape($test, false), "O\\'Reilly % _");
+        same($dr->escape($test, true), 'O\\\'Reilly \\% \\_');
     }
 }
