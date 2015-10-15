@@ -13,26 +13,26 @@
  * @author    Denis Smetannikov <denis@jbzoo.com>
  */
 
-namespace JBZoo\SqlBuilder;
+namespace JBZoo\SqlBuilder\Element;
 
 /**
  * Class Element
- * @package JBZoo\SqlBuilder
+ * @package JBZoo\SqlBuilder\Element
  */
 class Element
 {
     /**
-     * @var string The name of the element.
+     * @var string The name of the element
      */
     protected $name = '';
 
     /**
-     * @var array An array of elements.
+     * @var array An array of conditions
      */
-    protected $elements = array();
+    protected $conditions = array();
 
     /**
-     * @var string Glue piece.
+     * @var string Glue piece
      */
     protected $glue = ',';
 
@@ -46,8 +46,6 @@ class Element
     {
         $this->name = strtoupper(trim($name));
         $this->glue = $glue;
-
-        $this->append($elements);
     }
 
     /**
@@ -56,17 +54,26 @@ class Element
      */
     public function __toString()
     {
-        return ' ' . $this->name . ' ' . implode($this->glue, $this->elements);
+        $result = '';
+        if ($this->name) {
+            $result .= $this->name . ' ';
+        }
+
+        $result .= implode($this->glue, $this->conditions);
+
+        return $result;
     }
 
     /**
      * Appends element parts to the internal list.
+     * @param string       $name
      * @param string|array $elements
+     * @param mixed        $extra
      * @return void
      */
-    public function append($elements)
+    public function append($name, $elements, $extra = null)
     {
-        $this->elements = array_merge($this->elements, (array)$elements);
+        $this->conditions = array_merge($this->conditions, (array)$elements);
     }
 
 }

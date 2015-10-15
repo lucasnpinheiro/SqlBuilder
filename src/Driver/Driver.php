@@ -26,16 +26,23 @@ abstract class Driver
     const FALSE = 'FALSE';
 
     /**
-     * @var mixed|null
+     * @var string
      */
-    protected $connection = null;
+    protected $tablePrefix = '';
 
     /**
-     * @param mixed|null $connection
+     * @var mixed|null
      */
-    public function __construct($connection = null)
+    protected $connection;
+
+    /**
+     * @param mixed  $connection
+     * @param string $tablePrefix
+     */
+    public function __construct($connection, $tablePrefix = null)
     {
-        $this->connection = $connection;
+        $this->connection  = $connection;
+        $this->tablePrefix = trim($tablePrefix);
     }
 
     /**
@@ -125,7 +132,11 @@ abstract class Driver
                 continue;
             }
 
-            $parts[] = '`' . $part . '`';
+            if ($part === '*') {
+                $parts[] = $part;
+            } else {
+                $parts[] = '`' . $part . '`';
+            }
         }
 
         return implode('.', $parts);
@@ -133,7 +144,7 @@ abstract class Driver
 
     /**
      * @param string $condition
-     * @param null   $value
+     * @param string $value
      * @return string
      */
     public function clean($condition, $value = null)
@@ -182,6 +193,14 @@ abstract class Driver
         }
 
         return $condition;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTablePrfix()
+    {
+        return $this->tablePrefix;
     }
 
     /**

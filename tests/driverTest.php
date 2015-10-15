@@ -15,6 +15,7 @@
 
 namespace JBZoo\PHPUnit;
 
+use JBZoo\SqlBuilder\Exception;
 use JBZoo\SqlBuilder\SqlBuilder;
 
 /**
@@ -33,7 +34,7 @@ class DriverTest extends PHPUnit
         if (is_null($connection)) {
             $connection = mysqli_connect($_ENV['mysql_host'], $_ENV['mysql_user'], $_ENV['mysql_pass'], $_ENV['mysql_db'], $_ENV['mysql_port']);
         }
-        SqlBuilder::set('mysqli', $connection);
+        SqlBuilder::set('mysqli', $connection, 't_');
     }
 
     public function testDriverInit()
@@ -72,6 +73,7 @@ class DriverTest extends PHPUnit
         $dr = SqlBuilder::get();
 
         same($dr->quoteName('table'), '`table`');
+        same($dr->quoteName('table.*'), '`table`.*');
         same($dr->quoteName('table.field'), '`table`.`field`');
         same($dr->quoteName('table.field.'), '`table`.`field`');
         same($dr->quoteName('.table.field.'), '`table`.`field`');

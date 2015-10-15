@@ -32,40 +32,64 @@ class SelectTest extends PHPUnit
         return new Select($tableName);
     }
 
-    public function testCreateEmpty()
+    /**
+     * @expectedException \JBZoo\SqlBuilder\Exception
+     */
+    public function testCreateEmptySelect()
     {
-        is('', (string)(new Select()));
-        is('', (string)(new Select('')));
-        is('', (string)(new Select(null)));
+        $this->_select('');
     }
+
+    public function testSelect()
+    {
+        $select = $this->_select('table');
+        is('' . $select, "SELECT * FROM `table`");
+
+        $select = $this->_select('table')->select('*');
+        is('' . $select, "SELECT * FROM `table`");
+
+        $select = $this->_select('table')->select('');
+        is('' . $select, "SELECT * FROM `table`");
+
+        $select = $this->_select('table')->select('id');
+        is('' . $select, "SELECT `id` FROM `table`");
+
+        $select = $this->_select('table')->select('table.id');
+        is('' . $select, "SELECT `table`.`id` FROM `table`");
+
+        $select = $this->_select('table')->select(array('*', 'table.id', 'category'));
+        is('' . $select, "SELECT *, `table`.`id`, `category` FROM `table`");
+    }
+
 
     public function testFrom()
     {
         $select = $this->_select('table');
-        is((string)$select, "SELECT * FROM `table`");
+        is('' . $select, "SELECT * FROM `table`");
 
         $select = $this->_select('table');
-        is((string)$select, "SELECT * FROM `table`");
-
-        $select = $this->_select()->from('table');
-        is((string)$select, "SELECT * FROM `table`");
-
-        $select = $this->_select()->from('table', 'tTable');
-        is((string)$select, "SELECT * FROM `table` AS tTable");
+        is('' . $select, "SELECT * FROM `table`");
 
         $select = $this->_select(array('table', 'tTable'));
-        is((string)$select, "SELECT * FROM `table` AS tTable");
+        is('' . $select, "SELECT * FROM `table` AS `tTable`");
+
+        $select = $this->_select(array('table', 'tTable'))
+            ->from('table2')
+            ->from('table3', 't3');
+
+        is('' . $select, "SELECT * FROM `table` AS `tTable`, `table2`, `table3` AS `t3`");
     }
+
 
     public function testWhereSimple()
     {
-        $select = new Select('table');
+        $select = $this->_select('table');
 
         $select->where('property = 1');
-        is((string)$select, "SELECT * FROM `table` WHERE property = 1");
+        is('' . $select, "SELECT * FROM `table` WHERE property = 1");
 
         $select->where('tTable.property = 2');
-        is((string)$select, "SELECT * FROM `table` WHERE property = 1 AND tTable.property = 2");
+        is('' . $select, "SELECT * FROM `table` WHERE property = 1 AND tTable.property = 2");
 
         // empty conditions
         $select
@@ -74,91 +98,209 @@ class SelectTest extends PHPUnit
             ->where(false)
             ->where(0);
 
-        is((string)$select, "SELECT * FROM `table` WHERE property = 1 AND tTable.property = 2");
+        is('' . $select, "SELECT * FROM `table` WHERE property = 1 AND tTable.property = 2");
+    }
+
+    public function testWhereConditions()
+    {
+        $select = $this->_select('table')
+            ->where('prop_1 = 1')
+            ->where('prop_2 = 2', null, 'OR')
+            ->where('prop_3 = ?i', 3, 'AND')
+            ->where('prop_4 = ?f', 3.50, 'OR')
+            ->where('prop_5 = ?s', '"testo"');
+
+        is('' . $select, "SELECT * FROM `table` WHERE prop_1 = 1 OR prop_2 = 2 AND prop_3 = 3 OR prop_4 = 3.5 AND prop_5 = '\\\"testo\\\"'");
+
+        $select = $this->_select('table')
+            ->where('prop_1 = 2')
+            ->whereGroup(array(
+                'group_1 = 1',
+                array('group_2 = 2', null, 'and'),
+                array('group_3 = ?i', 3, 'or'),
+                array('group_4 = ?f', 3.50, 'or'),
+                array('group_5 = ?s', '"testo"'),
+            ), 'OR')
+            ->where('prop_2 = 3', null, 'OR');
+        is('' . $select, "SELECT * FROM `table` WHERE prop_1 = 2 OR (group_1 = 1 AND group_2 = 2 OR group_3 = 3 OR group_4 = 3.5 AND group_5 = '\\\"testo\\\"') OR prop_2 = 3");
+
+        $select = $this->_select('table')
+            ->whereGroup('group_1 = 1', 'OR')
+            ->whereGroup(array(
+                'group_2 = 1',
+                'group_2 = 2',
+            ), 'OR')
+            ->whereGroup(array(
+                array('group_3 = ?i', null),
+                'group_3 = 3',
+            ), 'AND')
+            ->whereGroup(array(
+                array('group_4 = ?s', '', 'OR'),
+                array('group_4 = ?s', 0, 'OR'),
+                array('group_4 = ?f', null, 'OR'),
+            ), 'OR');
+        is('' . $select, "SELECT * FROM `table` WHERE (group_1 = 1) OR (group_2 = 1 AND group_2 = 2) AND (group_3 = NULL AND group_3 = 3) OR (group_4 = '' OR group_4 = '0' OR group_4 = NULL)");
     }
 
     public function testWhereEscapeIdentifiers()
     {
         $select = $this->_select('table')->where('tTable.property = ?n', 'property');
-        is((string)$select, "SELECT * FROM `table` WHERE tTable.property = `property`");
+        is('' . $select, "SELECT * FROM `table` WHERE tTable.property = `property`");
 
         $select = $this->_select('table')->where('tTable.property = ?n', 'tTable.property');
-        is((string)$select, "SELECT * FROM `table` WHERE tTable.property = `tTable`.`property`");
+        is('' . $select, "SELECT * FROM `table` WHERE tTable.property = `tTable`.`property`");
 
         $select = $this->_select('table')->where('tTable.property = ?n', 'tTable.property');
-        is((string)$select, "SELECT * FROM `table` WHERE tTable.property = `tTable`.`property`");
+        is('' . $select, "SELECT * FROM `table` WHERE tTable.property = `tTable`.`property`");
     }
+
 
     public function testWhereEscapeInteger()
     {
         $select = $this->_select('table')->where('tTable.property = ?i', 10.1);
-        is((string)$select, "SELECT * FROM `table` WHERE tTable.property = 10");
+        is('' . $select, "SELECT * FROM `table` WHERE tTable.property = 10");
 
         $select = $this->_select('table')->where('tTable.property = ?i', -1);
-        is((string)$select, "SELECT * FROM `table` WHERE tTable.property = -1");
+        is('' . $select, "SELECT * FROM `table` WHERE tTable.property = -1");
 
         $select = $this->_select('table')->where('tTable.property = ?i', -1.05);
-        is((string)$select, "SELECT * FROM `table` WHERE tTable.property = -1");
+        is('' . $select, "SELECT * FROM `table` WHERE tTable.property = -1");
 
         $select = $this->_select('table')->where('tTable.property = ?i');
-        is((string)$select, "SELECT * FROM `table` WHERE tTable.property = NULL");
+        is('' . $select, "SELECT * FROM `table` WHERE tTable.property = NULL");
     }
 
     public function testWhereEscapeFloat()
     {
         $select = $this->_select('table')->where('tTable.property = ?f', 10.1);
-        is((string)$select, "SELECT * FROM `table` WHERE tTable.property = 10.1");
+        is('' . $select, "SELECT * FROM `table` WHERE tTable.property = 10.1");
 
         $select = $this->_select('table')->where('tTable.property = ?f', '');
-        is((string)$select, "SELECT * FROM `table` WHERE tTable.property = 0");
+        is('' . $select, "SELECT * FROM `table` WHERE tTable.property = 0");
     }
 
     public function testWhereEscapeString()
     {
         $select = $this->_select('table')->where('tTable.property = ?s', 'string');
-        is((string)$select, "SELECT * FROM `table` WHERE tTable.property = 'string'");
+        is('' . $select, "SELECT * FROM `table` WHERE tTable.property = 'string'");
 
         $select = $this->_select('table')->where('tTable.property = ?s', ' !@#$%^&*()_+`"\\/?.,:;{}<>|~ ');
-        is((string)$select, "SELECT * FROM `table` WHERE tTable.property = ' !@#$%^&*()_+`\\\"\\\\/?.,:;{}<>|~ '");
+        is('' . $select, "SELECT * FROM `table` WHERE tTable.property = ' !@#$%^&*()_+`\\\"\\\\/?.,:;{}<>|~ '");
     }
 
     public function testWhereEscapeBoolean()
     {
         $select = $this->_select('table')->where('tTable.property = ?b', true);
-        is((string)$select, "SELECT * FROM `table` WHERE tTable.property = TRUE");
+        is('' . $select, "SELECT * FROM `table` WHERE tTable.property = TRUE");
 
         $select = $this->_select('table')->where('tTable.property = ?b', false);
-        is((string)$select, "SELECT * FROM `table` WHERE tTable.property = FALSE");
+        is('' . $select, "SELECT * FROM `table` WHERE tTable.property = FALSE");
 
         $select = $this->_select('table')->where('tTable.property = ?b');
-        is((string)$select, "SELECT * FROM `table` WHERE tTable.property = FALSE");
+        is('' . $select, "SELECT * FROM `table` WHERE tTable.property = FALSE");
 
         $select = $this->_select('table')->where('tTable.property = ?b', 1);
-        is((string)$select, "SELECT * FROM `table` WHERE tTable.property = TRUE");
+        is('' . $select, "SELECT * FROM `table` WHERE tTable.property = TRUE");
     }
 
     public function testWhereEscapeArray()
     {
         $select = $this->_select('table')->where('tTable.property IN ?a', array('0', 1, true, false, null, '"\''));
-        is((string)$select, "SELECT * FROM `table` WHERE tTable.property IN ('0', '1', TRUE, FALSE, NULL, '\\\"\'')");
+        is('' . $select, "SELECT * FROM `table` WHERE tTable.property IN ('0', '1', TRUE, FALSE, NULL, '\\\"\'')");
 
         $select = $this->_select('table')->where('tTable.property IN ?a', array());
-        is((string)$select, "SELECT * FROM `table` WHERE tTable.property IN (NULL)");
+        is('' . $select, "SELECT * FROM `table` WHERE tTable.property IN (NULL)");
 
         $select = $this->_select('table')->where('tTable.property IN ?a');
-        is((string)$select, "SELECT * FROM `table` WHERE tTable.property IN (NULL)");
+        is('' . $select, "SELECT * FROM `table` WHERE tTable.property IN (NULL)");
 
         $select = $this->_select('table')->where('tTable.property IN ?a', null);
-        is((string)$select, "SELECT * FROM `table` WHERE tTable.property IN (NULL)");
+        is('' . $select, "SELECT * FROM `table` WHERE tTable.property IN (NULL)");
     }
 
     public function testWhereEscapeUpdate()
     {
         $select = $this->_select('table')->where('?u', array('string' => 'string', 'float' => 123.456, 'int' => 654));
-        is((string)$select, "SELECT * FROM `table` WHERE `string`='string', `float`='123.456', `int`='654'");
+        is('' . $select, "SELECT * FROM `table` WHERE `string`='string', `float`='123.456', `int`='654'");
 
         $select = $this->_select('table')->where('?u', 'fail');
-        is((string)$select, "SELECT * FROM `table` WHERE");
-
+        is('' . $select, "SELECT * FROM `table` WHERE");
     }
+
+    public function testLimit()
+    {
+        $select = $this->_select('table')->limit(0);
+        is('' . $select, "SELECT * FROM `table`");
+
+        $select = $this->_select('table')->limit(1, 0);
+        is('' . $select, "SELECT * FROM `table` LIMIT 1");
+
+        $select = $this->_select('table')->limit(1, 10);
+        is('' . $select, "SELECT * FROM `table` LIMIT 10, 1");
+
+        $select = $this->_select('table')->limit(1, 10)->limit(1);
+        is('' . $select, "SELECT * FROM `table` LIMIT 1");
+    }
+
+    public function testJoin()
+    {
+        $select = $this->_select(array('table', 'tTable'))
+            ->leftJoin('join_table', 'join_table.item_id = tTable.id');
+        is('' . $select, "SELECT * FROM `table` AS `tTable` LEFT JOIN `join_table` ON (join_table.item_id = tTable.id)");
+
+        $select = $this->_select(array('table', 'tTable'))
+            ->leftJoin(
+                array('join_table', 'tJoin'),
+                'tJoin.item_id = tTable.id'
+            );
+        is('' . $select, "SELECT * FROM `table` AS `tTable` LEFT JOIN `join_table` AS `tJoin` ON (tJoin.item_id = tTable.id)");
+
+        $select = $this->_select(array('table', 'tTable'))
+            ->leftJoin(
+                array('join_table', 'tJoin'),
+                array('tJoin.item_id = tTable.id', 'tJoin.cat_id = tTable.cat_id')
+            );
+        is('' . $select, "SELECT * FROM `table` AS `tTable` LEFT JOIN `join_table` AS `tJoin` ON (tJoin.item_id = tTable.id AND tJoin.cat_id = tTable.cat_id)");
+
+
+        $select = $this->_select(array('table', 'tTable'))
+            ->rightJoin(
+                array('join_table', 'tJoin'),
+                array(
+                    'tJoin.item_id = tTable.id',
+                    'tJoin.item_id = tTable.id',
+                )
+            );
+        is('' . $select, "SELECT * FROM `table` AS `tTable` RIGHT JOIN `join_table` AS `tJoin` ON (tJoin.item_id = tTable.id)");
+
+
+        $select = $this->_select(array('table', 'tTable'))
+            ->leftJoin(
+                array('join_table', 'tLeftJoin'),
+                'tJoin.item_id = tTable.id'
+            )
+            ->rightJoin(
+                array('join_table', 'tRightJoin'),
+                array(
+                    'tJoin.item_id = tTable.id',
+                    'tJoin.cat_id = tTable.cat_id',
+                )
+            )
+            ->innerJoin(
+                array('join_table', 'tInnerJoin'),
+                array('tJoin.item_id = tTable.id')
+            );
+        is('' . $select, "SELECT * FROM `table` AS `tTable` "
+            . "LEFT JOIN `join_table` AS `tLeftJoin` ON (tJoin.item_id = tTable.id) "
+            . "RIGHT JOIN `join_table` AS `tRightJoin` ON (tJoin.item_id = tTable.id AND tJoin.cat_id = tTable.cat_id) "
+            . "INNER JOIN `join_table` AS `tInnerJoin` ON (tJoin.item_id = tTable.id)");
+    }
+
+    public function testPrefix()
+    {
+        $select = $this->_select(array('#__table'));
+        is('' . $select, "SELECT * FROM `t_table`");
+    }
+
+
 }

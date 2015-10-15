@@ -29,15 +29,16 @@ class SqlBuilder
     /**
      * @param string $type
      * @param mixed  $connection
+     * @param string $tablePrefix
      * @return Driver\Driver
      * @throws Exception
      */
-    static public function set($type, $connection)
+    static public function set($type, $connection, $tablePrefix = null)
     {
         $className = 'JBZoo\\SqlBuilder\\Driver\\' . ucfirst(strtolower($type));
 
         if (class_exists($className)) {
-            self::$driver = new $className($connection);
+            self::$driver = new $className($connection, $tablePrefix);
         } else {
             throw new Exception('Undefined driver type - "' . $type . '"');
         }
