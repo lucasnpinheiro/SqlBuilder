@@ -37,7 +37,7 @@ class PerformanceTest extends PHPUnit
         }
 
         $result = $this->loopProfiler($this->_max);
-        dump($result, 0);
+        print_r($result);
     }
 
     public function testLeakMemoryMin()
@@ -72,7 +72,7 @@ class PerformanceTest extends PHPUnit
         }
 
         $result = $this->loopProfiler($this->_max);
-        dump($result, 0);
+        print_r($result);
     }
 
     public function testLeakMemoryMax()
@@ -144,58 +144,7 @@ class PerformanceTest extends PHPUnit
         }
 
         $result = $this->loopProfiler($this->_max);
-        dump($result, 0);
+        print_r($result);
     }
-
-
-    /*
-
-    public function testJoin()
-    {
-        $select = $this->_select(array('table', 'tTable'))
-            ->leftJoin('join_table', 'join_table.item_id = tTable.id');
-        is('' . $select, "SELECT * FROM `table` AS `tTable` LEFT JOIN `join_table` ON (join_table.item_id = tTable.id)");
-
-        $select = $this->_select(array('table', 'tTable'))
-            ->leftJoin(
-                array('join_table', 'tJoin'),
-                'tJoin.item_id = tTable.id'
-            );
-        is('' . $select, "SELECT * FROM `table` AS `tTable` LEFT JOIN `join_table` AS `tJoin` ON (tJoin.item_id = tTable.id)");
-
-        $select = $this->_select(array('table', 'tTable'))
-            ->leftJoin(
-                array('join_table', 'tJoin'),
-                array('tJoin.item_id = tTable.id', 'tJoin.cat_id = tTable.cat_id')
-            );
-        is('' . $select, "SELECT * FROM `table` AS `tTable` LEFT JOIN `join_table` AS `tJoin` ON (tJoin.item_id = tTable.id AND tJoin.cat_id = tTable.cat_id)");
-
-
-        $select = $this->_select(array('table', 'tTable'))
-            ->rightJoin(
-                array('join_table', 'tJoin'),
-                array(
-                    'tJoin.item_id = tTable.id',
-                    'tJoin.item_id = tTable.id',
-                )
-            );
-        is('' . $select, "SELECT * FROM `table` AS `tTable` RIGHT JOIN `join_table` AS `tJoin` ON (tJoin.item_id = tTable.id)");
-
-
-        $select = $this->_select(array('table', 'tTable'))
-            ;
-        is('' . $select, "SELECT * FROM `table` AS `tTable` "
-            . "LEFT JOIN `join_table` AS `tLeftJoin` ON (tJoin.item_id = tTable.id) "
-            . "RIGHT JOIN `join_table` AS `tRightJoin` ON (tJoin.item_id = tTable.id AND tJoin.cat_id = tTable.cat_id) "
-            . "INNER JOIN `join_table` AS `tInnerJoin` ON (tJoin.item_id = tTable.id)");
-    }
-
-    public function testPrefix()
-    {
-        $select = $this->_select(array('#__table'));
-        is('' . $select, "SELECT * FROM `t_table`");
-    }
-*/
-
 
 }
