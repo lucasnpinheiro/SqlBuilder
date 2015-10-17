@@ -21,6 +21,9 @@ namespace JBZoo\SqlBuilder\Element;
  */
 class Where extends Element
 {
+    /**
+     * @var array
+     */
     protected $_logicValid = array('AND', 'OR');
 
     /**
@@ -52,7 +55,6 @@ class Where extends Element
 
         $extra = trim(strtoupper($extra));
         if (in_array($extra, $this->_logicValid, true)) {
-
             if (count($this->conditions) === 0) {
                 $result = $elements[0]; // default
             } else {
@@ -61,7 +63,5 @@ class Where extends Element
 
             $this->conditions = array_merge($this->conditions, (array)$result);
         }
-
     }
-
 }

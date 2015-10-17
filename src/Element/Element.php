@@ -75,5 +75,4 @@ class Element
     {
         $this->conditions = array_merge($this->conditions, (array)$elements);
     }
-
 }

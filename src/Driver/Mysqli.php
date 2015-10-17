@@ -36,5 +36,4 @@ class MySQLi extends Driver
 
         return $result;
     }
-
 }

@@ -81,8 +81,9 @@ abstract class Driver
      *
      * @param   mixed $name   The identifier name to wrap in quotes, or an array of identifier names to wrap in quotes.
      *                        Each type supports dot-notation name.
-     * @param   mixed $as     The AS query part associated to $name. It can be string or array, in latter case it has to be
-     *                        same length of $name; if is null there will not be any AS part for string or array element.
+     * @param   mixed $as     The AS query part associated to $name. It can be string or array, in latter case it
+     *                        has to be same length of $name;
+     *                        if is null there will not be any AS part for string or array element.
      * @return  mixed
      */
     public function quoteName($name, $as = null)
@@ -155,23 +156,22 @@ abstract class Driver
             $value     = $this->quoteName($value);
             $condition = str_replace('?n', $value, $condition);
 
-        } else if (strpos($condition, '?s') !== false) {
+        } elseif (strpos($condition, '?s') !== false) {
             $condition = str_replace('?s', $this->quote($value), $condition);
 
-        } else if (strpos($condition, '?i') !== false) {
+        } elseif (strpos($condition, '?i') !== false) {
             $value     = $value === null ? self::NULL : (int)$value;
             $condition = str_replace('?i', $value, $condition);
 
-        } else if (strpos($condition, '?f') !== false) {
+        } elseif (strpos($condition, '?f') !== false) {
             $value     = $value === null ? self::NULL : (float)$value;
             $condition = str_replace('?f', $value, $condition);
 
-        } else if (strpos($condition, '?b') !== false) {
+        } elseif (strpos($condition, '?b') !== false) {
             $value     = (bool)$value ? self::TRUE : self::FALSE;
             $condition = str_replace('?b', $value, $condition);
 
-        } else if (strpos($condition, '?u') !== false) {
-
+        } elseif (strpos($condition, '?u') !== false) {
             $query = array();
             foreach ((array)$value as $key => $value) {
                 if (!is_numeric($key)) {
@@ -181,8 +181,7 @@ abstract class Driver
 
             $condition = str_replace('?u', implode(', ', $query), $condition);
 
-        } else if (strpos($condition, '?a') !== false) {
-
+        } elseif (strpos($condition, '?a') !== false) {
             $value = (array)$value;
             if (count($value) === 0) {
                 $value = array(null);

@@ -23,7 +23,7 @@ use JBZoo\SqlBuilder\Query\Select;
  */
 class PerformanceTest extends PHPUnit
 {
-    protected $_max = 300;
+    protected $_max = 10;
 
     public function testLeakMemoryCreate()
     {
@@ -36,8 +36,7 @@ class PerformanceTest extends PHPUnit
             unset($sql);
         }
 
-        $result = $this->loopProfiler($this->_max);
-        print_r($result);
+        alert($this->loopProfiler($this->_max), 'Create');
     }
 
     public function testLeakMemoryMin()
@@ -71,8 +70,7 @@ class PerformanceTest extends PHPUnit
             unset($sql);
         }
 
-        $result = $this->loopProfiler($this->_max);
-        print_r($result);
+        alert($this->loopProfiler($this->_max), 'Create');
     }
 
     public function testLeakMemoryMax()
@@ -143,8 +141,7 @@ class PerformanceTest extends PHPUnit
             unset($sql);
         }
 
-        $result = $this->loopProfiler($this->_max);
-        print_r($result);
+        alert($this->loopProfiler($this->_max), 'Create');
     }
 
 }

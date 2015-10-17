@@ -161,7 +161,7 @@ class Select extends Query
 
         if ($offset) {
             $conditions = (int)$offset . ', ' . (int)$length;
-        } else if ($length) {
+        } elseif ($length) {
             $conditions = (int)$length;
         }
 
