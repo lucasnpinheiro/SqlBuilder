@@ -29,9 +29,6 @@ before_script:
   # Install testing tools
   - composer require phpunit/phpunit:^4.8
 
-  # Imstall phpcs ruleset.xml
-  curl -sS https://raw.githubusercontent.com/JBZoo/Misc/master/phpcs/JBZoo/ruleset.xml > build/phpcs/ruleset.xml
-
   # Install report tools
   - sh -c 'if [ "$TRAVIS_PHP_VERSION" = "5.6" ]; then
         composer require
@@ -65,7 +62,8 @@ after_script:
 
   # Check PSR1,2 src and tests
   - sh -c 'if [ "$TRAVIS_PHP_VERSION" = "5.6" ]; then
-        php vendor/bin/phpcs ./src --standard=build/phpcs/ruleset.xml --report=full;
+        curl -sS https://raw.githubusercontent.com/JBZoo/Misc/master/phpcs/JBZoo/ruleset.xml > ./build/phpcs_ruleset.xml;
+        php vendor/bin/phpcs ./src --standard=./build/phpcs_ruleset.xml --report=full;
     fi;'
 
   # Try to find copy-paste
