@@ -23,7 +23,14 @@ use JBZoo\SqlBuilder\Query\Select;
  */
 class PerformanceTest extends PHPUnit
 {
-    protected $_max = 10;
+    protected $_max = 1000;
+
+    protected function setUp()
+    {
+        if ($this->isXDebug()) {
+            incomplete('xDebug must not be loaded for performance test.');
+        }
+    }
 
     public function testLeakMemoryCreate()
     {
