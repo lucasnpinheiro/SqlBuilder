@@ -73,7 +73,7 @@ class Options extends Element
      * @param $element
      * @return bool
      */
-    protected function _isValid($element)
+    public function _isValid($element)
     {
         $element = trim(strtoupper($element));
 
