@@ -54,7 +54,7 @@ script:
   # PHPUnit tests
   - php vendor/bin/phpunit --configuration phpunit.xml.dist;
 
-  # Check PSR1,2 src and tests
+  # Check PHP Code Standarts
   - sh -c 'if [ "$TRAVIS_PHP_VERSION" = "5.6" ]; then
         mkdir -p build/misc;
         git clone --branch=master https://github.com/JBZoo/Misc.git build/misc;
