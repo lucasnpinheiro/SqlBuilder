@@ -46,6 +46,7 @@ before_script:
   - mkdir -p build/logs
   - mkdir -p build/phpunit
   - mkdir -p build/pdepend
+  - mkdir -p build/misc
 
   # Update env
   - phpenv rehash
@@ -62,7 +63,7 @@ after_script:
 
   # Check PSR1,2 src and tests
   - sh -c 'if [ "$TRAVIS_PHP_VERSION" = "5.6" ]; then
-        git clone --branch=master https://github.com/JBZoo/Misc.git build/misc
+        git clone --branch=master https://github.com/JBZoo/Misc.git build/misc;
         php vendor/bin/phpcs ./src --standard=build/misc/phpcs/JBZoo/ruleset.xml --report=full;
     fi;'
 
