@@ -107,7 +107,7 @@ class PerformanceTest extends PHPUnit
                 ->where('property = ?s', '"testo2"')
                 ->where('tTable.property = ?b', true)
                 ->where('tTable.property IN ?a', array('0', 1, true, false, null, '"\''))
-                ->where('?u', array('string' => 'string', 'float' => 123.456, 'int' => 654))
+                ->where('(?u)', array('string' => 'string', 'float' => 123.456, 'int' => 654))
                 ->where(null)
                 ->where('')
                 ->where(false)
@@ -160,7 +160,8 @@ class PerformanceTest extends PHPUnit
                 ))
                 ->option(array(
                     'DISTINCT',
-                ));
+                ))
+                ->explain();
 
             $sql = $select->__toString();
             unset($select);

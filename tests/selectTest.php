@@ -61,6 +61,12 @@ class SelectTest extends PHPUnit
         is('' . $select, "SELECT *, `table`.`id`, `category` FROM `table`");
     }
 
+    public function testTools()
+    {
+        $select = $this->_select('table');
+        is("''qwerty''", $select->quote("'qwerty'", false));
+        is("\\'qwerty\\'", $select->escape("'qwerty'"));
+    }
 
     public function testFrom()
     {
@@ -108,7 +114,9 @@ class SelectTest extends PHPUnit
         $select->having('property = 1');
         is('' . $select, "SELECT * FROM `table` HAVING property = 1");
 
-        $select->having('COUNT(*) > 1');
+        $select
+            ->having('')
+            ->having('COUNT(*) > 1');
         is('' . $select, "SELECT * FROM `table` HAVING property = 1 AND COUNT(*) > 1");
     }
 

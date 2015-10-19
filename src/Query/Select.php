@@ -129,10 +129,6 @@ class Select extends Query
      */
     public function having($condition, $value = null, $logic = 'AND')
     {
-        if (!$condition) {
-            return $this;
-        }
-
         $condition = $this->clean($condition, $value);
         $this->_append('having', 'having', $condition, ', ', $logic);
 
