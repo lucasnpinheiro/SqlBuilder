@@ -25,6 +25,7 @@ class Options extends Element
      * @var array
      */
     protected $_validOptions = array(
+        // select
         'SQL_SMALL_RESULT',
         'SQL_BIG_RESULT',
         'SQL_BUFFER_RESULT',
@@ -32,6 +33,10 @@ class Options extends Element
         'SQL_CALC_FOUND_ROWS',
         'HIGH_PRIORITY',
         array('DISTINCT', 'DISTINCTROW', 'ALL'),
+
+        // insert
+        array('LOW_PRIORITY', 'DELAYED'),
+        'IGNORE',
     );
 
     /**

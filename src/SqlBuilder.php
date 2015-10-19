@@ -33,7 +33,7 @@ class SqlBuilder
      * @return Driver\Driver
      * @throws Exception
      */
-    static public function set($type, $connection, $tablePrefix = null)
+    public static function set($type, $connection, $tablePrefix = null)
     {
         $className = 'JBZoo\\SqlBuilder\\Driver\\' . ucfirst(strtolower($type));
 
@@ -49,7 +49,7 @@ class SqlBuilder
     /**
      * @return Driver\Driver|null
      */
-    static public function get()
+    public static function get()
     {
         return self::$_driver;
     }

@@ -19,7 +19,7 @@ use JBZoo\SqlBuilder\Block\Where;
 use JBZoo\SqlBuilder\Exception;
 
 /**
- * Class QuerySelect
+ * Class Select
  * @package JBZoo\SqlBuilder
  */
 class Select extends Query
@@ -184,7 +184,7 @@ class Select extends Query
         }
 
         if ($conditions) {
-            $this->cleanElement('limit');
+            $this->cleanBlock('limit');
             $this->_append('limit', 'LIMIT', $conditions);
         }
 

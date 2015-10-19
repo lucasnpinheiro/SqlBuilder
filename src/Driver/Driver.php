@@ -89,13 +89,13 @@ abstract class Driver
     public function quoteName($name, $as = null)
     {
         if (is_string($name)) {
-            $quotedName = $this->quoteNameStr(explode('.', trim($name, '.')));
+            $quotedName = $this->_quoteNameStr(explode('.', trim($name, '.')));
 
             $quotedAs = '';
 
             if (!is_null($as)) {
                 settype($as, 'array');
-                $quotedAs .= ' AS ' . $this->quoteNameStr($as);
+                $quotedAs .= ' AS ' . $this->_quoteNameStr($as);
             }
 
             return $quotedName . $quotedAs;
@@ -124,7 +124,7 @@ abstract class Driver
      * @param   array $strArr Array of strings coming from quoteName dot-explosion.
      * @return  string
      */
-    protected function quoteNameStr($strArr)
+    protected function _quoteNameStr($strArr)
     {
         $parts = array();
 

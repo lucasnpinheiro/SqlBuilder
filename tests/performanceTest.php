@@ -170,5 +170,4 @@ class PerformanceTest extends PHPUnit
 
         alert($this->loopProfiler($this->_max), 'Create - Big');
     }
-
 }

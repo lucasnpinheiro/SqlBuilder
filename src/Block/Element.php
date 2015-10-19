@@ -15,6 +15,8 @@
 
 namespace JBZoo\SqlBuilder\Block;
 
+use JBZoo\SqlBuilder\SqlBuilder;
+
 /**
  * Class Element
  * @package JBZoo\SqlBuilder\Block
@@ -74,5 +76,13 @@ class Element
     public function append($name, $elements, $extra = null)
     {
         $this->_conditions = array_merge($this->_conditions, (array)$elements);
+    }
+
+    /**
+     * @return \JBZoo\SqlBuilder\Driver\Driver|null
+     */
+    protected function _getDriver()
+    {
+        return SqlBuilder::get();
     }
 }

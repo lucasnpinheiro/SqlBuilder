@@ -64,8 +64,8 @@ class SelectTest extends PHPUnit
     public function testTools()
     {
         $select = $this->_select('table');
-        is("''qwerty''", $select->quote("'qwerty'", false));
-        is("\\'qwerty\\'", $select->escape("'qwerty'"));
+        is($select->quote("'qwerty'", false), "''qwerty''");
+        is($select->escape("'qwerty'"), "\\'qwerty\\'");
     }
 
     public function testFrom()

@@ -109,7 +109,7 @@ abstract class Query
      * @param $blockName
      * @return $this
      */
-    public function cleanElement($blockName)
+    public function cleanBlock($blockName)
     {
         $blockName = strtolower($blockName);
 
