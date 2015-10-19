@@ -13,18 +13,28 @@
  * @author    Denis Smetannikov <denis@jbzoo.com>
  */
 
-namespace JBZoo\SqlBuilder\Element;
+namespace JBZoo\SqlBuilder\Block;
 
 /**
- * Class Where
- * @package JBZoo\SqlBuilder\Element
+ * Class Element
+ * @package JBZoo\SqlBuilder\Block
  */
-class Where extends Element
+class Element
 {
     /**
-     * @var array
+     * @var string The name of the element
      */
-    protected $_logicValid = array('AND', 'OR');
+    protected $_name = '';
+
+    /**
+     * @var array An array of conditions
+     */
+    protected $_conditions = array();
+
+    /**
+     * @var string Glue piece
+     */
+    protected $_glue = ',';
 
     /**
      * Constructor
@@ -34,7 +44,24 @@ class Where extends Element
      */
     public function __construct($name, $elements = array(), $glue = ',')
     {
-        parent::__construct($name, $elements, ' ');
+        $this->_name = strtoupper(trim($name));
+        $this->_glue = $glue;
+    }
+
+    /**
+     * Magic function to convert the query element to a string
+     * @return string
+     */
+    public function __toString()
+    {
+        $result = '';
+        if ($this->_name) {
+            $result .= $this->_name . ' ';
+        }
+
+        $result .= implode($this->_glue, $this->_conditions);
+
+        return $result;
     }
 
     /**
@@ -46,22 +73,6 @@ class Where extends Element
      */
     public function append($name, $elements, $extra = null)
     {
-        $elements = (array)$elements;
-        $elements = array_filter(array_unique($elements));
-
-        if (!$elements) {
-            return;
-        }
-
-        $extra = trim(strtoupper($extra));
-        if (in_array($extra, $this->_logicValid, true)) {
-            if (count($this->conditions) === 0) {
-                $result = $elements[0]; // default
-            } else {
-                $result = $extra . ' ' . $elements[0]; // default
-            }
-
-            $this->conditions = array_merge($this->conditions, (array)$result);
-        }
+        $this->_conditions = array_merge($this->_conditions, (array)$elements);
     }
 }

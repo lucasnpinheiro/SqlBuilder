@@ -15,7 +15,7 @@
 
 namespace JBZoo\SqlBuilder\Query;
 
-use JBZoo\SqlBuilder\Element\Element;
+use JBZoo\SqlBuilder\Block\Element;
 use JBZoo\SqlBuilder\SqlBuilder;
 
 /**
@@ -25,7 +25,7 @@ use JBZoo\SqlBuilder\SqlBuilder;
 abstract class Query
 {
 
-    protected $elements = array();
+    protected $_elements = array();
 
     /**
      * @return \JBZoo\SqlBuilder\Driver\Driver
@@ -47,21 +47,19 @@ abstract class Query
     {
         $blockName = strtolower($blockName);
 
-        if (array_key_exists($blockName, $this->elements)) {
+        if (array_key_exists($blockName, $this->_elements)) {
+            $className = '\\JBZoo\\SqlBuilder\\Block\\' . ucfirst(strtolower($blockName));
 
-            $className = '\\JBZoo\\SqlBuilder\\Element\\' . ucfirst(strtolower($blockName));
-
-            if (null === $this->elements[$blockName]) {
-
+            if (null === $this->_elements[$blockName]) {
                 if (class_exists($className)) {
-                    $this->elements[$blockName] = new $className($name, $conditions, $glue);
+                    $this->_elements[$blockName] = new $className($name, $conditions, $glue);
                 } else {
-                    $this->elements[$blockName] = new Element($name, $conditions, $glue);
+                    $this->_elements[$blockName] = new Element($name, $conditions, $glue);
                 }
             }
 
             /** @var Element $elem */
-            $elem = $this->elements[$blockName];
+            $elem = $this->_elements[$blockName];
             $elem->append($name, $conditions, $extra);
         }
 
@@ -115,8 +113,8 @@ abstract class Query
     {
         $blockName = strtolower($blockName);
 
-        if (isset($this->elements[$blockName])) {
-            $this->elements[$blockName] = null;
+        if (isset($this->_elements[$blockName])) {
+            $this->_elements[$blockName] = null;
         }
 
         return $this;
@@ -130,7 +128,7 @@ abstract class Query
         $sql = array();
 
         /** @var Element $element */
-        foreach ($this->elements as $element) {
+        foreach ($this->_elements as $element) {
             $sql[] = $element ? $element->__toString() : null;
         }
 

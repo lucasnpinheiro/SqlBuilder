@@ -101,6 +101,17 @@ class SelectTest extends PHPUnit
         is('' . $select, "SELECT * FROM `table` WHERE property = 1 AND tTable.property = 2");
     }
 
+    public function testHavingSimple()
+    {
+        $select = $this->_select('table');
+
+        $select->having('property = 1');
+        is('' . $select, "SELECT * FROM `table` HAVING property = 1");
+
+        $select->having('COUNT(*) > 1');
+        is('' . $select, "SELECT * FROM `table` HAVING property = 1 AND COUNT(*) > 1");
+    }
+
     public function testWhereConditions()
     {
         $select = $this->_select('table')
@@ -110,7 +121,8 @@ class SelectTest extends PHPUnit
             ->where('prop_4 = ?f', 3.50, 'OR')
             ->where('prop_5 = ?s', '"testo"');
 
-        is('' . $select, "SELECT * FROM `table` WHERE prop_1 = 1 OR prop_2 = 2 AND prop_3 = 3 OR prop_4 = 3.5 AND prop_5 = '\\\"testo\\\"'");
+        is('' . $select, "SELECT * FROM `table` WHERE prop_1 = 1 OR prop_2 = 2 "
+            . "AND prop_3 = 3 OR prop_4 = 3.5 AND prop_5 = '\\\"testo\\\"'");
 
         $select = $this->_select('table')
             ->where('prop_1 = 2')
@@ -122,7 +134,9 @@ class SelectTest extends PHPUnit
                 array('group_5 = ?s', '"testo"'),
             ), 'OR')
             ->where('prop_2 = 3', null, 'OR');
-        is('' . $select, "SELECT * FROM `table` WHERE prop_1 = 2 OR (group_1 = 1 AND group_2 = 2 OR group_3 = 3 OR group_4 = 3.5 AND group_5 = '\\\"testo\\\"') OR prop_2 = 3");
+        is('' . $select, "SELECT * FROM `table` WHERE prop_1 = 2 "
+            . "OR (group_1 = 1 AND group_2 = 2 OR group_3 = 3 OR group_4 = 3.5 AND group_5 = '\\\"testo\\\"') "
+            . "OR prop_2 = 3");
 
         $select = $this->_select('table')
             ->whereGroup('group_1 = 1', 'OR')
@@ -139,7 +153,10 @@ class SelectTest extends PHPUnit
                 array('group_4 = ?s', 0, 'OR'),
                 array('group_4 = ?f', null, 'OR'),
             ), 'OR');
-        is('' . $select, "SELECT * FROM `table` WHERE (group_1 = 1) OR (group_2 = 1 AND group_2 = 2) AND (group_3 = NULL AND group_3 = 3) OR (group_4 = '' OR group_4 = '0' OR group_4 = NULL)");
+        is('' . $select, "SELECT * FROM `table` WHERE (group_1 = 1) "
+            . "OR (group_2 = 1 AND group_2 = 2) "
+            . "AND (group_3 = NULL AND group_3 = 3) "
+            . "OR (group_4 = '' OR group_4 = '0' OR group_4 = NULL)");
     }
 
     public function testWhereEscapeIdentifiers()
@@ -246,21 +263,24 @@ class SelectTest extends PHPUnit
     {
         $select = $this->_select(array('table', 'tTable'))
             ->leftJoin('join_table', 'join_table.item_id = tTable.id');
-        is('' . $select, "SELECT * FROM `table` AS `tTable` LEFT JOIN `join_table` ON (join_table.item_id = tTable.id)");
+        is('' . $select, "SELECT * FROM `table` AS `tTable` "
+            . "LEFT JOIN `join_table` ON (join_table.item_id = tTable.id)");
 
         $select = $this->_select(array('table', 'tTable'))
             ->leftJoin(
                 array('join_table', 'tJoin'),
                 'tJoin.item_id = tTable.id'
             );
-        is('' . $select, "SELECT * FROM `table` AS `tTable` LEFT JOIN `join_table` AS `tJoin` ON (tJoin.item_id = tTable.id)");
+        is('' . $select, "SELECT * FROM `table` AS `tTable` "
+            . "LEFT JOIN `join_table` AS `tJoin` ON (tJoin.item_id = tTable.id)");
 
         $select = $this->_select(array('table', 'tTable'))
             ->leftJoin(
                 array('join_table', 'tJoin'),
                 array('tJoin.item_id = tTable.id', 'tJoin.cat_id = tTable.cat_id')
             );
-        is('' . $select, "SELECT * FROM `table` AS `tTable` LEFT JOIN `join_table` AS `tJoin` ON (tJoin.item_id = tTable.id AND tJoin.cat_id = tTable.cat_id)");
+        is('' . $select, "SELECT * FROM `table` AS `tTable` "
+            . "LEFT JOIN `join_table` AS `tJoin` ON (tJoin.item_id = tTable.id AND tJoin.cat_id = tTable.cat_id)");
 
 
         $select = $this->_select(array('table', 'tTable'))
@@ -271,7 +291,8 @@ class SelectTest extends PHPUnit
                     'tJoin.item_id = tTable.id',
                 )
             );
-        is('' . $select, "SELECT * FROM `table` AS `tTable` RIGHT JOIN `join_table` AS `tJoin` ON (tJoin.item_id = tTable.id)");
+        is('' . $select, "SELECT * FROM `table` AS `tTable` "
+            . "RIGHT JOIN `join_table` AS `tJoin` ON (tJoin.item_id = tTable.id)");
 
 
         $select = $this->_select(array('table', 'tTable'))
@@ -302,5 +323,69 @@ class SelectTest extends PHPUnit
         is('' . $select, "SELECT * FROM `t_table`");
     }
 
+    public function testGroup()
+    {
+        $select = $this->_select('table')->group('prop');
+        is('' . $select, "SELECT * FROM `table` GROUP BY `prop`");
 
+        $select = $this->_select('table')->group('prop', true);
+        is('' . $select, "SELECT * FROM `table` GROUP BY `prop`");
+
+        $select = $this->_select('table')->group('qwerty')->group('prop');
+        is('' . $select, "SELECT * FROM `table` GROUP BY `qwerty`, `prop`");
+
+        $select = $this->_select('table')->group('qwerty', false)->group('prop', false);
+        is('' . $select, "SELECT * FROM `table` GROUP BY qwerty, prop");
+    }
+
+    public function testOrder()
+    {
+        $select = $this->_select('table')->order('prop');
+        is('' . $select, "SELECT * FROM `table` ORDER BY `prop` ASC");
+
+        $select = $this->_select('table')->order('prop', 'asc', true);
+        is('' . $select, "SELECT * FROM `table` ORDER BY `prop` ASC");
+
+        $select = $this->_select('table')->order('prop', 'desc', false);
+        is('' . $select, "SELECT * FROM `table` ORDER BY prop DESC");
+
+        $select = $this->_select('table')
+            ->order('prop1')
+            ->order('prop2', 'desc')
+            ->order('prop3', 'ASC', false)
+            ->order('prop4', 'desc', true);
+        is('' . $select, "SELECT * FROM `table` ORDER BY `prop1` ASC, `prop2` DESC, prop3 ASC, `prop4` DESC");
+    }
+
+    public function testOptions()
+    {
+        $select = $this->_select('table')->option('SQL_NO_CACHE');
+        is('' . $select, "SELECT SQL_NO_CACHE * FROM `table`");
+
+        $select = $this->_select('table')->option(array('SQL_CACHE', 'HIGH_PRIORITY'));
+        is('' . $select, "SELECT SQL_CACHE HIGH_PRIORITY * FROM `table`");
+
+        $select = $this->_select('table')
+            ->option(array(
+                'SQL_BUFFER_RESULT',
+                'SQL_NO_CACHE',
+                '',
+            ))
+            ->option(array(
+                'DISTINCT',
+            ));
+        is('' . $select, "SELECT SQL_BUFFER_RESULT SQL_NO_CACHE DISTINCT * FROM `table`");
+    }
+
+    public function testExplain()
+    {
+        $select = $this->_select('table')->explain();
+        is('' . $select, "EXPLAIN SELECT * FROM `table`");
+
+        $select = $this->_select('table')->explain(true);
+        is('' . $select, "EXPLAIN SELECT * FROM `table`");
+
+        $select = $select->explain(false);
+        is('' . $select, "SELECT * FROM `table`");
+    }
 }

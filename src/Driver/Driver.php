@@ -28,12 +28,12 @@ abstract class Driver
     /**
      * @var string
      */
-    protected $tablePrefix = '';
+    protected $_tablePrefix = '';
 
     /**
      * @var mixed|null
      */
-    protected $connection;
+    protected $_connection;
 
     /**
      * @param mixed  $connection
@@ -41,8 +41,8 @@ abstract class Driver
      */
     public function __construct($connection, $tablePrefix = null)
     {
-        $this->connection  = $connection;
-        $this->tablePrefix = trim($tablePrefix);
+        $this->_connection  = $connection;
+        $this->_tablePrefix = trim($tablePrefix);
     }
 
     /**
@@ -199,7 +199,7 @@ abstract class Driver
      */
     public function getTablePrfix()
     {
-        return $this->tablePrefix;
+        return $this->_tablePrefix;
     }
 
     /**

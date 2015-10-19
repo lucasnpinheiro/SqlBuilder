@@ -15,7 +15,7 @@
 
 namespace JBZoo\SqlBuilder\Query;
 
-use JBZoo\SqlBuilder\Element\Where;
+use JBZoo\SqlBuilder\Block\Where;
 use JBZoo\SqlBuilder\Exception;
 
 /**
@@ -28,17 +28,22 @@ class Select extends Query
      * Query scheme
      * @var array
      */
-    protected $elements = array(
-        'select' => null,
-        'option' => null,
-        'from'   => null,
-        'join'   => null,
-        'where'  => null,
-        'group'  => null,
-        'having' => null,
-        'order'  => null,
-        'limit'  => null,
+    protected $_elements = array(
+        'options' => null,
+        'select'  => null,
+        'from'    => null,
+        'join'    => null,
+        'where'   => null,
+        'group'   => null,
+        'having'  => null,
+        'order'   => null,
+        'limit'   => null,
     );
+
+    /**
+     * @var string
+     */
+    protected $_explain = '';
 
     /**
      * Constructor
@@ -110,7 +115,26 @@ class Select extends Query
         }
 
         $condition = $this->clean($condition, $value);
-        $this->_append('where', 'WHERE', $condition, ', ', $logic);
+        $this->_append('where', 'where', $condition, ', ', $logic);
+
+        return $this;
+    }
+
+    /**
+     * Having conditions
+     * @param string $condition
+     * @param string $value
+     * @param string $logic
+     * @return $this
+     */
+    public function having($condition, $value = null, $logic = 'AND')
+    {
+        if (!$condition) {
+            return $this;
+        }
+
+        $condition = $this->clean($condition, $value);
+        $this->_append('having', 'having', $condition, ', ', $logic);
 
         return $this;
     }
@@ -128,11 +152,9 @@ class Select extends Query
         $where = new Where('');
 
         foreach ($conditions as $condition) {
-
             $logicInner = 'AND';
 
             if (is_array($condition)) {
-
                 $value      = isset($condition[1]) ? $condition[1] : null;
                 $logicInner = isset($condition[2]) ? $condition[2] : 'AND';
                 $condition  = $this->clean($condition[0], $value);
@@ -186,7 +208,6 @@ class Select extends Query
         $valid = array('LEFT', 'RIGHT', 'INNER', 'STRAIGHT_JOIN', 'NATURAL LEFT', 'NATURAL RIGHT');
 
         if (in_array($type, $valid, true)) {
-
             if (is_array($table)) {
                 $table = $this->quoteName($table[0]) . ' AS ' . $this->quoteName($table[1]);
             } else {
@@ -238,17 +259,85 @@ class Select extends Query
     }
 
     /**
+     * @param string $column
+     * @param bool   $quote
+     * @return $this
+     */
+    public function group($column, $quote = true)
+    {
+        if ($column) {
+            if ($quote) {
+                $column = $this->quoteName($column);
+            }
+
+            $this->_append('group', 'group by', $column);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $column
+     * @param string $direction
+     * @param bool   $quote
+     * @return $this
+     */
+    public function order($column, $direction = 'ASC', $quote = true)
+    {
+        if ($column) {
+            if ($quote) {
+                $column = $this->quoteName($column);
+            }
+
+            $direction = strtoupper($direction);
+            if (in_array($direction, array('ASC', 'DESC'))) {
+                $this->_append('order', 'order by', $column . ' ' . $direction);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string|array $optionName
+     * @return $this
+     */
+    public function option($optionName)
+    {
+        $optionName = (array)$optionName;
+
+        if ($optionName) {
+            $this->_append('options', 'option', $optionName);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param bool $isShow
+     * @return $this
+     */
+    public function explain($isShow = true)
+    {
+        if ($isShow) {
+            $this->_explain = 'EXPLAIN ';
+        } else {
+            $this->_explain = '';
+        }
+
+        return $this;
+    }
+
+    /**
      * @return string
      * @throws Exception
      */
     public function __toString()
     {
-        if (!isset($this->elements['select'])) {
+        if (!isset($this->_elements['select'])) {
             $this->select('*');
         }
 
-        return parent::__toString();
+        return $this->_explain . 'SELECT ' . parent::__toString();
     }
-
-
 }

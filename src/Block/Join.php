@@ -13,11 +13,11 @@
  * @author    Denis Smetannikov <denis@jbzoo.com>
  */
 
-namespace JBZoo\SqlBuilder\Element;
+namespace JBZoo\SqlBuilder\Block;
 
 /**
  * Class Join
- * @package JBZoo\SqlBuilder\Element
+ * @package JBZoo\SqlBuilder\Block
  */
 class Join extends Element
 {
@@ -46,7 +46,7 @@ class Join extends Element
             $elements[$key] = $name . ' ' . $element;
         }
 
-        $this->conditions = array_merge($this->conditions, $elements);
+        $this->_conditions = array_merge($this->_conditions, $elements);
     }
 
     /**
@@ -54,6 +54,6 @@ class Join extends Element
      */
     public function __toString()
     {
-        return implode($this->glue, $this->conditions);
+        return implode($this->_glue, $this->_conditions);
     }
 }

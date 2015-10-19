@@ -13,28 +13,18 @@
  * @author    Denis Smetannikov <denis@jbzoo.com>
  */
 
-namespace JBZoo\SqlBuilder\Element;
+namespace JBZoo\SqlBuilder\Block;
 
 /**
- * Class Element
- * @package JBZoo\SqlBuilder\Element
+ * Class Where
+ * @package JBZoo\SqlBuilder\Block
  */
-class Element
+class Where extends Element
 {
     /**
-     * @var string The name of the element
+     * @var array
      */
-    protected $name = '';
-
-    /**
-     * @var array An array of conditions
-     */
-    protected $conditions = array();
-
-    /**
-     * @var string Glue piece
-     */
-    protected $glue = ',';
+    protected $_logicValid = array('AND', 'OR');
 
     /**
      * Constructor
@@ -44,24 +34,7 @@ class Element
      */
     public function __construct($name, $elements = array(), $glue = ',')
     {
-        $this->name = strtoupper(trim($name));
-        $this->glue = $glue;
-    }
-
-    /**
-     * Magic function to convert the query element to a string
-     * @return string
-     */
-    public function __toString()
-    {
-        $result = '';
-        if ($this->name) {
-            $result .= $this->name . ' ';
-        }
-
-        $result .= implode($this->glue, $this->conditions);
-
-        return $result;
+        parent::__construct($name, $elements, ' ');
     }
 
     /**
@@ -73,6 +46,22 @@ class Element
      */
     public function append($name, $elements, $extra = null)
     {
-        $this->conditions = array_merge($this->conditions, (array)$elements);
+        $elements = (array)$elements;
+        $elements = array_filter(array_unique($elements));
+
+        if (!$elements) {
+            return;
+        }
+
+        $extra = trim(strtoupper($extra));
+        if (in_array($extra, $this->_logicValid, true)) {
+            if (count($this->_conditions) === 0) {
+                $result = $elements[0]; // default
+            } else {
+                $result = $extra . ' ' . $elements[0]; // default
+            }
+
+            $this->_conditions = array_merge($this->_conditions, (array)$result);
+        }
     }
 }

@@ -13,27 +13,21 @@
  * @author    Denis Smetannikov <denis@jbzoo.com>
  */
 
-namespace JBZoo\SqlBuilder\Driver;
+namespace JBZoo\SqlBuilder\Block;
 
 /**
- * Class MySQLi
- * @package JBZoo\SqlBuilder\Driver
+ * Class Select
+ * @package JBZoo\SqlBuilder\Block
  */
-class MySQLi extends Driver
+class Select extends Element
 {
     /**
-     * @param string     $text
-     * @param bool|false $extra
-     * @return string
+     * @param string $name
+     * @param array  $elements
+     * @param string $glue
      */
-    public function escape($text, $extra = false)
+    public function __construct($name, $elements = array(), $glue = ',')
     {
-        $result = mysqli_real_escape_string($this->_connection, (string)$text);
-
-        if ($extra) {
-            $result = addcslashes($result, '%_');
-        }
-
-        return $result;
+        parent::__construct('', $elements, ', ');
     }
 }

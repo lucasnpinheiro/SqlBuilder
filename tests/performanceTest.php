@@ -25,15 +25,12 @@ class PerformanceTest extends PHPUnit
 {
     protected $_max = 1000;
 
-    protected function setUp()
-    {
-        if ($this->isXDebug()) {
-            incomplete('xDebug must not be loaded for performance test.');
-        }
-    }
-
     public function testLeakMemoryCreate()
     {
+        if ($this->isXDebug()) {
+            return;
+        }
+
         $this->startProfiler();
         for ($i = 0; $i < $this->_max; $i++) {
             $select = new Select(array('table', 'tTable'));
@@ -43,11 +40,15 @@ class PerformanceTest extends PHPUnit
             unset($sql);
         }
 
-        alert($this->loopProfiler($this->_max), 'Create');
+        alert($this->loopProfiler($this->_max), 'Create - min');
     }
 
     public function testLeakMemoryMin()
     {
+        if ($this->isXDebug()) {
+            return;
+        }
+
         $this->startProfiler();
         for ($i = 0; $i < $this->_max; $i++) {
             $select = new Select(array('table', 'tTable'));
@@ -77,11 +78,15 @@ class PerformanceTest extends PHPUnit
             unset($sql);
         }
 
-        alert($this->loopProfiler($this->_max), 'Create');
+        alert($this->loopProfiler($this->_max), 'Create - Normal');
     }
 
     public function testLeakMemoryMax()
     {
+        if ($this->isXDebug()) {
+            return;
+        }
+
         $this->startProfiler();
         for ($i = 0; $i < $this->_max; $i++) {
             $select = new Select(array('table', 'tTable'));
@@ -141,14 +146,28 @@ class PerformanceTest extends PHPUnit
                 ->innerJoin(
                     array('join_table', 'tInnerJoin'),
                     array('tJoin.item_id = tTable.id')
-                );
+                )
+                ->group('qwerty', false)
+                ->group('prop', false)
+                ->order('prop1')
+                ->order('prop2', 'desc')
+                ->order('prop3', 'ASC', false)
+                ->order('prop4', 'desc', true)
+                ->option(array(
+                    'SQL_BUFFER_RESULT',
+                    'SQL_NO_CACHE',
+                    '',
+                ))
+                ->option(array(
+                    'DISTINCT',
+                ));
 
             $sql = $select->__toString();
             unset($select);
             unset($sql);
         }
 
-        alert($this->loopProfiler($this->_max), 'Create');
+        alert($this->loopProfiler($this->_max), 'Create - Big');
     }
 
 }
