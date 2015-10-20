@@ -15,7 +15,6 @@
 
 namespace JBZoo\SqlBuilder\Query;
 
-use JBZoo\SqlBuilder\Block\Where;
 use JBZoo\SqlBuilder\Exception;
 
 /**
@@ -28,13 +27,11 @@ class Insert extends Query
      * Query scheme
      * @var array
      */
-    protected $_elements = array(
-        'options'   => null,
-        'into'      => null,
-        'columns'   => null,
-        'values'    => null,
-        'set'       => null,
-        'duplicate' => null,
+    protected $_blocks = array(
+        'options'     => null,
+        'into'        => null,
+        'insertrow'   => null,
+        'insertmulti' => null,
     );
 
     /**
@@ -66,32 +63,27 @@ class Insert extends Query
     }
 
     /**
-     * @param array $columns
+     * @param array $data
      * @return $this
      */
-    public function columns($columns)
+    public function row(array $data)
     {
-        $this->_append('columns', 'columns', $columns);
+        //$this->cleanBlock('insertrow');
+        $this->_append('insertrow', 'insertrow', $data);
+
         return $this;
     }
 
     /**
-     * @param array|string $data
+     * @param array $data
      * @return $this
      */
-    public function values($data)
+    public function multi(array $data)
     {
-        $this->_append('values', 'values', $data);
-        return $this;
-    }
+        $this->cleanBlock('insertmulti');
+        $this->cleanBlock('insertrow');
+        $this->_append('insertmulti', 'insertmulti', $data);
 
-    /**
-     * @param array|string $data
-     * @return $this
-     */
-    public function data($data)
-    {
-        $this->_append('values', 'values', $data);
         return $this;
     }
 

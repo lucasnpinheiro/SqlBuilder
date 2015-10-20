@@ -49,55 +49,65 @@ class InsertTest extends PHPUnit
         is('' . $insert, "INSERT INTO `table2`");
     }
 
-    public function testColumns()
+    public function testRow()
     {
-        $insert = $this->_insert('table')->columns(array('col1', 'col2', 'col3'));
-        is('' . $insert, "INSERT INTO `table` (`col1`, `col2`, `col3`)");
-
-        $insert->columns('col4');
-        is('' . $insert, "INSERT INTO `table` (`col1`, `col2`, `col3`, `col4`)");
-    }
-
-    public function testValues()
-    {
-        $insert = $this->_insert('table')->values('Agent');
-        is('' . $insert, "INSERT INTO `table` VALUES ('Agent')");
-
-        $insert = $this->_insert('table')->values(array('Agent'));
-        is('' . $insert, "INSERT INTO `table` VALUES ('Agent')");
-
-        $insert = $this->_insert('table')->values(array('Agent', 'Smith'));
-        is('' . $insert, "INSERT INTO `table` VALUES ('Agent', 'Smith')");
-
-        $insert = $this->_insert('table')->values(array('Agent'))->values('Smith');
-        is('' . $insert, "INSERT INTO `table` VALUES ('Agent', 'Smith')");
-
-        $insert = $this->_insert('table')->values(array(
-            'Agent Smith', "'qwerty'", 123, 123.456, true, false, null,
-        ));
-        is('' . $insert, "INSERT INTO `table` VALUES ("
-            . "'Agent Smith', '\\'qwerty\\'', '123', '123.456', TRUE, FALSE, NULL)");
-    }
-
-    public function testData()
-    {
-        skip('Not ready');
-        $insert = $this->_insert('table')->data(array('name' => 'Agent'));
+        $insert = $this->_insert('table')->row(array('name' => 'Agent'));
         is('' . $insert, "INSERT INTO `table` (`name`) VALUES ('Agent')");
 
-        $insert = $this->_insert('table')->data(array('name' => 'Agent', 'surname' => 'Smith'));
+        $insert = $this->_insert('table')->row(array('name' => 'Agent', 'surname' => 'Smith'));
         is('' . $insert, "INSERT INTO `table` (`name`, `surname`) VALUES ('Agent', 'Smith')");
 
         $insert = $this->_insert('table')
-            ->data(array('name' => 'Agent', 'surname' => 'Smith'))
-            ->data(array('string' => "'qwerty'", 'bool' => true, 'null' => null));
+            ->row(array('name' => 'Agent', 'surname' => 'Smith'))
+            ->row(array('string' => "'qwerty'", 'bool' => true, 'null' => null));
         is('' . $insert, "INSERT INTO `table` (`name`, `surname`, `string`, `bool`, `null`) "
             . "VALUES ('Agent', 'Smith', '\\'qwerty\\'', TRUE, NULL)");
 
         $insert = $this->_insert('table')
-            ->data(array('name' => 'Agent', 'qwerty' => null, 'surname' => 'Smith'))
-            ->data(array('qwerty' => "'qwerty'", 'name' => "Vasya", 'surname' => 'Pupkin'));
-        is('' . $insert, "INSERT INTO `table` (`name`, `surname`, `qwerty`) "
-            . "VALUES ('Vasya', 'Pupkin', '\\'qwerty\\'')");
+            ->row(array(
+                'name'    => 'Agent',
+                'surname' => 'Smith',
+                'qwerty'  => null,
+            ))
+            ->row(array(
+                'qwerty'  => "'qwerty'",
+                'name'    => "Vasya",
+                'surname' => 'Pupkin',
+                'prop'    => false,
+            ));
+        is('' . $insert, "INSERT INTO `table` (`name`, `surname`, `qwerty`, `prop`) "
+            . "VALUES ('Vasya', 'Pupkin', '\\'qwerty\\'', FALSE)");
+    }
+
+    public function testMulti()
+    {
+        $insert = $this->_insert('table')->multi(array());
+        is('' . $insert, "INSERT INTO `table`");
+
+        $insert = $this->_insert('table')
+            ->multi(array(
+                array('name' => 'Agent', 'surname' => 'Smith', 'string' => '1', 'bool' => false),
+                array("'qwerty'", null, true, false),
+                array("'qwerty'", null, true, 123, -456.987),
+                array(true, "'qwerty'", null),
+                array(),
+                array(0),
+                array(0, 1),
+                array(0, 1, 2),
+                array(0, 1, 2, 3),
+                array(0, 1, 2, 3, 4),
+            ));
+
+        is('' . $insert, "INSERT INTO `table` (`name`, `surname`, `string`, `bool`) VALUES "
+            . "('Agent','Smith','1',FALSE), "
+            . "('\'qwerty\'',NULL,TRUE,FALSE), "
+            . "('\'qwerty\'',NULL,TRUE,'123'), "
+            . "(TRUE,'\'qwerty\'',NULL,NULL), "
+            . "(NULL,NULL,NULL,NULL), "
+            . "('0',NULL,NULL,NULL), "
+            . "('0','1',NULL,NULL), "
+            . "('0','1','2',NULL), "
+            . "('0','1','2','3'), "
+            . "('0','1','2','3')");
     }
 }

@@ -25,7 +25,7 @@ use JBZoo\SqlBuilder\SqlBuilder;
 abstract class Query
 {
 
-    protected $_elements = array();
+    protected $_blocks = array();
 
     /**
      * @return \JBZoo\SqlBuilder\Driver\Driver
@@ -47,19 +47,19 @@ abstract class Query
     {
         $blockName = strtolower($blockName);
 
-        if (array_key_exists($blockName, $this->_elements)) {
+        if (array_key_exists($blockName, $this->_blocks)) {
             $className = '\\JBZoo\\SqlBuilder\\Block\\' . ucfirst(strtolower($blockName));
 
-            if (null === $this->_elements[$blockName]) {
+            if (null === $this->_blocks[$blockName]) {
                 if (class_exists($className)) {
-                    $this->_elements[$blockName] = new $className($name, $conditions, $glue);
+                    $this->_blocks[$blockName] = new $className($name, $conditions, $glue);
                 } else {
-                    $this->_elements[$blockName] = new Element($name, $conditions, $glue);
+                    $this->_blocks[$blockName] = new Element($name, $conditions, $glue);
                 }
             }
 
             /** @var Element $elem */
-            $elem = $this->_elements[$blockName];
+            $elem = $this->_blocks[$blockName];
             $elem->append($name, $conditions, $extra);
         }
 
@@ -113,8 +113,8 @@ abstract class Query
     {
         $blockName = strtolower($blockName);
 
-        if (isset($this->_elements[$blockName])) {
-            $this->_elements[$blockName] = null;
+        if (isset($this->_blocks[$blockName])) {
+            $this->_blocks[$blockName] = null;
         }
 
         return $this;
@@ -128,7 +128,7 @@ abstract class Query
         $sql = array();
 
         /** @var Element $element */
-        foreach ($this->_elements as $element) {
+        foreach ($this->_blocks as $element) {
             $sql[] = $element ? $element->__toString() : null;
         }
 

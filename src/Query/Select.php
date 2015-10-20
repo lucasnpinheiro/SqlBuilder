@@ -28,7 +28,7 @@ class Select extends Query
      * Query scheme
      * @var array
      */
-    protected $_elements = array(
+    protected $_blocks = array(
         'options' => null,
         'select'  => null,
         'from'    => null,
@@ -330,7 +330,7 @@ class Select extends Query
      */
     public function __toString()
     {
-        if (!isset($this->_elements['select'])) {
+        if (!isset($this->_blocks['select'])) {
             $this->select('*');
         }
 

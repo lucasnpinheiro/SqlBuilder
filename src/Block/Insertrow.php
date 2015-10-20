@@ -16,10 +16,10 @@
 namespace JBZoo\SqlBuilder\Block;
 
 /**
- * Class Columns
+ * Class InsertRow
  * @package JBZoo\SqlBuilder\Block
  */
-class Columns extends Element
+class InsertRow extends Element
 {
     /**
      * @param string $name
@@ -40,10 +40,12 @@ class Columns extends Element
      */
     public function append($name, $elements, $extra = null)
     {
-        $elements = (array)$this->_getDriver()->quoteName($elements);
+        $elements = (array)$elements;
 
-        foreach ($elements as $element) {
-            $this->_conditions[$element] = $element;
+        foreach ($elements as $column => $element) {
+            $column = trim(strtolower($column));
+
+            $this->_conditions[$column] = $element;
         }
     }
 
@@ -52,6 +54,10 @@ class Columns extends Element
      */
     public function __toString()
     {
-        return '(' . implode($this->_glue, $this->_conditions) . ')';
+        $driver = $this->_getDriver();
+        $colums = $driver->quoteName(array_keys($this->_conditions));
+        $values = $driver->quote(array_values($this->_conditions));
+
+        return '(' . implode($this->_glue, $colums) . ') VALUES (' . implode($this->_glue, $values) . ')';
     }
 }
