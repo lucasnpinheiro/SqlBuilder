@@ -158,36 +158,59 @@ abstract class Driver
 
         $condition = trim($condition);
 
-        if (strpos($condition, '?n') !== false) {
+        if (strpos($condition, '?n') !== false) { // SQL Entities
             $value     = $this->quoteName($value);
             $condition = str_replace('?n', $value, $condition);
 
-        } elseif (strpos($condition, '?s') !== false) {
+        } elseif (strpos($condition, '?s') !== false) { // any string
             $condition = str_replace('?s', $this->quote($value), $condition);
 
-        } elseif (strpos($condition, '?i') !== false) {
-            $value     = $value === null ? self::NULL : (int)$value;
-            $condition = str_replace('?i', $value, $condition);
+        } elseif (strpos($condition, '?i') !== false) { // integer
+            $condition = str_replace('?i', (int)trim($value), $condition);
 
-        } elseif (strpos($condition, '?f') !== false) {
-            $value     = $value === null ? self::NULL : (float)$value;
+        } elseif (strpos($condition, '?f') !== false) { // float
+            $value     = (float)str_replace(',', '.', trim($value));
             $condition = str_replace('?f', $value, $condition);
 
-        } elseif (strpos($condition, '?b') !== false) {
+        } elseif (strpos($condition, '?b') !== false) { // boolean
             $value     = (bool)$value ? self::TRUE : self::FALSE;
             $condition = str_replace('?b', $value, $condition);
 
-        } elseif (strpos($condition, '?u') !== false) {
+        } elseif (strpos($condition, '?k') !== false) { // key=>value
             $query = array();
+
             foreach ((array)$value as $key => $value) {
-                if (!is_numeric($key)) {
-                    $query[] = $this->quoteName($key) . '=' . $this->quote($value);
+                if (is_numeric($key)) {
+                    continue;
                 }
+
+                if (is_array($value)) {
+                    $value = $this->clean($value[0], $value[1]);
+                }
+
+                $query[] = $this->quoteName($key) . '=' . $value;
+            }
+
+            $condition = str_replace('?k', implode(', ', $query), $condition);
+
+        } elseif (strpos($condition, '?u') !== false) { // update (SET ...)
+            $query = array();
+
+            foreach ((array)$value as $value) {
+                if (is_array($value[1])) {
+                    $value[1] = $this->clean($value[1][0], $value[1][1]);
+                }
+
+                if (in_array($value[1], array(true, false, null), true)) {
+                    $value[1] = $this->quote($value[1]);
+                }
+
+                $query[] = $this->quoteName($value[0]) . '=' . $value[1];
             }
 
             $condition = str_replace('?u', implode(', ', $query), $condition);
 
-        } elseif (strpos($condition, '?a') !== false) {
+        } elseif (strpos($condition, '?a') !== false) { // array
             $value = (array)$value;
             if (count($value) === 0) {
                 $value = array(null);

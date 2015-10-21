@@ -51,9 +51,7 @@ class Insert extends Query
     public function into($tableName)
     {
         $this->cleanBlock('into');
-        $this->_append('Into', $tableName);
-
-        return $this;
+        return $this->_append('Into', $tableName);
     }
 
     /**
@@ -74,9 +72,7 @@ class Insert extends Query
     {
         $this->cleanBlock('insertmulti');
         $this->cleanBlock('insertrow');
-        $this->_append('Insertmulti', $data);
-
-        return $this;
+        return $this->_append('Insertmulti', $data);
     }
 
     /**
@@ -85,8 +81,7 @@ class Insert extends Query
      */
     public function option($optionName)
     {
-        $this->_append('Options', $optionName, 'Insert');
-        return $this;
+        return $this->_append('Options', $optionName, 'Insert');
     }
 
     /**

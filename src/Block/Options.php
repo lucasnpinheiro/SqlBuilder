@@ -44,6 +44,11 @@ class Options extends Block
             'LOW_PRIORITY',
             'QUICK',
         ),
+
+        'UPDATE' => array(
+            'LOW_PRIORITY',
+            'IGNORE',
+        ),
     );
 
     /**
@@ -57,11 +62,9 @@ class Options extends Block
         $elements = (array)$elements;
 
         foreach ($elements as $element) {
-            if (!$this->_isValid($element, $extra)) {
-                continue;
+            if ($element = $this->_isValid($element, $extra)) {
+                $this->_conditions[$element] = $element;
             }
-
-            $this->_conditions[$element] = $element;
         }
     }
 
@@ -78,9 +81,9 @@ class Options extends Block
         if (isset($this->_validOptions[$queryType])) {
             foreach ($this->_validOptions[$queryType] as $options) {
                 if (is_string($options) && $element === $options) {
-                    return true;
+                    return $element;
                 } elseif (is_array($options) && in_array($element, $options, true)) {
-                    return true;
+                    return $element;
                 }
             }
         }

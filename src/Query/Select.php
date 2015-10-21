@@ -15,7 +15,6 @@
 
 namespace JBZoo\SqlBuilder\Query;
 
-use JBZoo\SqlBuilder\Block\Where;
 use JBZoo\SqlBuilder\Block\WhereGroup;
 use JBZoo\SqlBuilder\Exception;
 

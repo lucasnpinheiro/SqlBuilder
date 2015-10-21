@@ -213,8 +213,8 @@ class SelectTest extends PHPUnit
             ), 'OR');
         is('' . $select, "SELECT * FROM `table` WHERE (group_1 = 1) "
             . "OR (group_2 = 1 AND group_2 = 2) "
-            . "AND (group_3 = NULL AND group_3 = 3) "
-            . "OR (group_4 = '' OR group_4 = '0' OR group_4 = NULL)");
+            . "AND (group_3 = 0 AND group_3 = 3) "
+            . "OR (group_4 = '' OR group_4 = '0' OR group_4 = 0)");
     }
 
     public function testWhereEscapeIdentifiers()
@@ -242,7 +242,7 @@ class SelectTest extends PHPUnit
         is('' . $select, "SELECT * FROM `table` WHERE tTable.property = -1");
 
         $select = $this->_select('table')->where('tTable.property = ?i');
-        is('' . $select, "SELECT * FROM `table` WHERE tTable.property = NULL");
+        is('' . $select, "SELECT * FROM `table` WHERE tTable.property = 0");
     }
 
     public function testWhereEscapeFloat()
@@ -251,6 +251,9 @@ class SelectTest extends PHPUnit
         is('' . $select, "SELECT * FROM `table` WHERE tTable.property = 10.1");
 
         $select = $this->_select('table')->where('tTable.property = ?f', '');
+        is('' . $select, "SELECT * FROM `table` WHERE tTable.property = 0");
+
+        $select = $this->_select('table')->where('tTable.property = ?f', NULL);
         is('' . $select, "SELECT * FROM `table` WHERE tTable.property = 0");
     }
 
@@ -295,10 +298,14 @@ class SelectTest extends PHPUnit
 
     public function testWhereEscapeUpdate()
     {
-        $select = $this->_select('table')->where('?u', array('string' => 'string', 'float' => 123.456, 'int' => 654));
-        is('' . $select, "SELECT * FROM `table` WHERE `string`='string', `float`='123.456', `int`='654'");
+        $select = $this->_select('table')->where('?k', array(
+            'string' => array('?s', 'string'),
+            'float'  => array('?f', '123,456'),
+            'int'    => 654,
+        ));
+        is('' . $select, "SELECT * FROM `table` WHERE `string`='string', `float`=123.456, `int`=654");
 
-        $select = $this->_select('table')->where('?u', 'fail');
+        $select = $this->_select('table')->where('?k', 'fail');
         is('' . $select, "SELECT * FROM `table`");
     }
 
