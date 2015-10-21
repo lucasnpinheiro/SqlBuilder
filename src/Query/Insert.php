@@ -23,6 +23,8 @@ use JBZoo\SqlBuilder\Exception;
  */
 class Insert extends Query
 {
+    protected $_type = 'INSERT';
+
     /**
      * Query scheme
      * @var array
@@ -90,6 +92,6 @@ class Insert extends Query
      */
     public function __toString()
     {
-        return 'INSERT ' . parent::__toString();
+        return $this->_type . ' ' . parent::__toString();
     }
 }

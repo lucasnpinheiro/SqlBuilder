@@ -25,7 +25,7 @@ class Options extends Block
      * @var array
      */
     protected $_validOptions = array(
-        'SELECT' => array(
+        'SELECT'      => array(
             'SQL_SMALL_RESULT',
             'SQL_BIG_RESULT',
             'SQL_BUFFER_RESULT',
@@ -35,17 +35,21 @@ class Options extends Block
             array('DISTINCT', 'DISTINCTROW', 'ALL'),
         ),
 
-        'INSERT' => array(
+        'INSERT'      => array(
             array('LOW_PRIORITY', 'DELAYED'),
             'IGNORE',
         ),
 
-        'DELETE' => array(
+        'REPLACE    ' => array(
+            array('LOW_PRIORITY', 'DELAYED'),
+        ),
+
+        'DELETE'      => array(
             'LOW_PRIORITY',
             'QUICK',
         ),
 
-        'UPDATE' => array(
+        'UPDATE'      => array(
             'LOW_PRIORITY',
             'IGNORE',
         ),
