@@ -16,11 +16,13 @@
 namespace JBZoo\SqlBuilder\Block;
 
 /**
- * Class InsertRow
+ * Class Group
  * @package JBZoo\SqlBuilder\Block
  */
-class InsertRow extends Block
+class Group extends Block
 {
+    protected $_validList = array('ASC', 'DESC');
+
     /**
      * Appends element parts to the internal list.
      * @param string|array $elements
@@ -29,12 +31,15 @@ class InsertRow extends Block
      */
     public function append($elements, $extra = null)
     {
-        $elements = (array)$elements;
+        $quote  = (bool)$extra;
+        $column = $elements;
 
-        foreach ($elements as $column => $element) {
-            $column = trim(strtolower($column));
+        if ($column) {
+            if ($quote) {
+                $column = $this->_getDriver()->quoteName($elements);
+            }
 
-            $this->_conditions[$column] = $element;
+            $this->_conditions[] = $column;
         }
     }
 
@@ -43,10 +48,6 @@ class InsertRow extends Block
      */
     public function __toString()
     {
-        $driver = $this->_getDriver();
-        $colums = $driver->quoteName(array_keys($this->_conditions));
-        $values = $driver->quote(array_values($this->_conditions));
-
-        return '(' . implode(', ', $colums) . ') VALUES (' . implode(', ', $values) . ')';
+        return 'GROUP BY ' . implode(', ', $this->_conditions);
     }
 }

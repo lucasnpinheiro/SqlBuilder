@@ -41,10 +41,6 @@ class Insert extends Query
      */
     public function __construct($tableName)
     {
-        if (!$tableName) {
-            throw new Exception('Table name is undefined');
-        }
-
         $this->into($tableName);
     }
 
@@ -54,10 +50,8 @@ class Insert extends Query
      */
     public function into($tableName)
     {
-        $tableName = $this->quoteName($tableName);
-
         $this->cleanBlock('into');
-        $this->_append('into', 'into', $tableName);
+        $this->_append('Into', $tableName);
 
         return $this;
     }
@@ -68,10 +62,8 @@ class Insert extends Query
      */
     public function row(array $data)
     {
-        //$this->cleanBlock('insertrow');
-        $this->_append('insertrow', 'insertrow', $data);
-
-        return $this;
+        $this->cleanBlock('insertmulti');
+        return $this->_append('Insertrow', $data);
     }
 
     /**
@@ -82,8 +74,18 @@ class Insert extends Query
     {
         $this->cleanBlock('insertmulti');
         $this->cleanBlock('insertrow');
-        $this->_append('insertmulti', 'insertmulti', $data);
+        $this->_append('Insertmulti', $data);
 
+        return $this;
+    }
+
+    /**
+     * @param string|array $optionName
+     * @return $this
+     */
+    public function option($optionName)
+    {
+        $this->_append('Options', $optionName, 'Insert');
         return $this;
     }
 

@@ -88,7 +88,7 @@ class InsertTest extends PHPUnit
             ->multi(array(
                 array('name' => 'Agent', 'surname' => 'Smith', 'string' => '1', 'bool' => false),
                 array("'qwerty'", null, true, false),
-                array("'qwerty'", null, true, 123, -456.987),
+                array("'qwerty'", null, 123, -456.987),
                 array(true, "'qwerty'", null),
                 array(),
                 array(0),
@@ -99,15 +99,25 @@ class InsertTest extends PHPUnit
             ));
 
         is('' . $insert, "INSERT INTO `table` (`name`, `surname`, `string`, `bool`) VALUES "
-            . "('Agent','Smith','1',FALSE), "
-            . "('\'qwerty\'',NULL,TRUE,FALSE), "
-            . "('\'qwerty\'',NULL,TRUE,'123'), "
-            . "(TRUE,'\'qwerty\'',NULL,NULL), "
-            . "(NULL,NULL,NULL,NULL), "
-            . "('0',NULL,NULL,NULL), "
-            . "('0','1',NULL,NULL), "
-            . "('0','1','2',NULL), "
-            . "('0','1','2','3'), "
-            . "('0','1','2','3')");
+            . "('Agent', 'Smith', '1', FALSE), "
+            . "('\'qwerty\'', NULL, TRUE, FALSE), "
+            . "('\'qwerty\'', NULL, '123', '-456.987'), "
+            . "(TRUE, '\'qwerty\'', NULL, NULL), "
+            . "(NULL, NULL, NULL, NULL), "
+            . "('0', NULL, NULL, NULL), "
+            . "('0', '1', NULL, NULL), "
+            . "('0', '1', '2', NULL), "
+            . "('0', '1', '2', '3'), "
+            . "('0', '1', '2', '3')");
+    }
+
+    public function testOptions()
+    {
+        $insert = $this->_insert('table')
+            ->option('DELAYED')
+            ->option('UNDEFINED')
+            ->option(array('IGNORE'));
+
+        is('' . $insert, "INSERT DELAYED IGNORE INTO `table`");
     }
 }

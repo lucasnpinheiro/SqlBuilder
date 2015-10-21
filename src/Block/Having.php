@@ -21,5 +21,5 @@ namespace JBZoo\SqlBuilder\Block;
  */
 class Having extends Where
 {
-
+    protected $_type = 'HAVING';
 }

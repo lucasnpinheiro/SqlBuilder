@@ -19,49 +19,45 @@ namespace JBZoo\SqlBuilder\Block;
  * Class Options
  * @package JBZoo\SqlBuilder\Block
  */
-class Options extends Element
+class Options extends Block
 {
     /**
      * @var array
      */
     protected $_validOptions = array(
-        // select
-        'SQL_SMALL_RESULT',
-        'SQL_BIG_RESULT',
-        'SQL_BUFFER_RESULT',
-        array('SQL_CACHE', 'SQL_NO_CACHE'),
-        'SQL_CALC_FOUND_ROWS',
-        'HIGH_PRIORITY',
-        array('DISTINCT', 'DISTINCTROW', 'ALL'),
+        'SELECT' => array(
+            'SQL_SMALL_RESULT',
+            'SQL_BIG_RESULT',
+            'SQL_BUFFER_RESULT',
+            array('SQL_CACHE', 'SQL_NO_CACHE'),
+            'SQL_CALC_FOUND_ROWS',
+            'HIGH_PRIORITY',
+            array('DISTINCT', 'DISTINCTROW', 'ALL'),
+        ),
 
-        // insert
-        array('LOW_PRIORITY', 'DELAYED'),
-        'IGNORE',
+        'INSERT' => array(
+            array('LOW_PRIORITY', 'DELAYED'),
+            'IGNORE',
+        ),
+
+        'DELETE' => array(
+            'LOW_PRIORITY',
+            'QUICK',
+        ),
     );
 
     /**
-     * @param string $name
-     * @param array  $elements
-     * @param string $glue
-     */
-    public function __construct($name, $elements = array(), $glue = ',')
-    {
-        parent::__construct('', $elements, ' ');
-    }
-
-    /**
      * Appends element parts to the internal list.
-     * @param string       $name
      * @param string|array $elements
      * @param mixed        $extra
      * @return void
      */
-    public function append($name, $elements, $extra = null)
+    public function append($elements, $extra = null)
     {
         $elements = (array)$elements;
 
         foreach ($elements as $element) {
-            if (!$this->_isValid($element)) {
+            if (!$this->_isValid($element, $extra)) {
                 continue;
             }
 
@@ -70,18 +66,22 @@ class Options extends Element
     }
 
     /**
-     * @param $element
+     * @param string $element
+     * @param string $queryType
      * @return bool
      */
-    protected function _isValid($element)
+    protected function _isValid($element, $queryType)
     {
-        $element = trim(strtoupper($element));
+        $element   = trim(strtoupper($element));
+        $queryType = strtoupper($queryType);
 
-        foreach ($this->_validOptions as $options) {
-            if (is_string($options) && $element === $options) {
-                return true;
-            } elseif (is_array($options) && in_array($element, $options, true)) {
-                return true;
+        if (isset($this->_validOptions[$queryType])) {
+            foreach ($this->_validOptions[$queryType] as $options) {
+                if (is_string($options) && $element === $options) {
+                    return true;
+                } elseif (is_array($options) && in_array($element, $options, true)) {
+                    return true;
+                }
             }
         }
 
@@ -93,6 +93,6 @@ class Options extends Element
      */
     public function __toString()
     {
-        return implode($this->_glue, $this->_conditions);
+        return implode(' ', $this->_conditions);
     }
 }

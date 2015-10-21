@@ -15,7 +15,8 @@
 
 namespace JBZoo\SqlBuilder\Query;
 
-use JBZoo\SqlBuilder\Block\Element;
+use JBZoo\SqlBuilder\Block\Block;
+use JBZoo\SqlBuilder\Exception;
 use JBZoo\SqlBuilder\SqlBuilder;
 
 /**
@@ -24,7 +25,9 @@ use JBZoo\SqlBuilder\SqlBuilder;
  */
 abstract class Query
 {
-
+    /**
+     * @var array
+     */
     protected $_blocks = array();
 
     /**
@@ -36,31 +39,45 @@ abstract class Query
     }
 
     /**
-     * @param string $blockName
-     * @param string $name
-     * @param array  $conditions
-     * @param string $glue
-     * @param mixed  $extra
-     * @return $this
+     * @param string $blockClassName
+     * @param null   $conditions
+     * @param null   $extra
+     * @return $this|Block
+     * @throws Exception
      */
-    protected function _append($blockName, $name, $conditions = null, $glue = ', ', $extra = null)
+    protected function _append($blockClassName, $conditions = null, $extra = null)
     {
-        $blockName = strtolower($blockName);
+        if (strpos($blockClassName, '_') === false) {
+            $key     = strtolower($blockClassName);
+            $type    = ucfirst($key);
+            $subType = '';
+        } else {
+            list($key, $subType) = explode('_', $blockClassName, 2);
+            $key     = strtolower($key);
+            $type    = ucfirst($key);
+            $subType = ucfirst(strtolower($subType));
+        }
 
-        if (array_key_exists($blockName, $this->_blocks)) {
-            $className = '\\JBZoo\\SqlBuilder\\Block\\' . ucfirst(strtolower($blockName));
+        if (array_key_exists($key, $this->_blocks)) {
+            $className = '\\JBZoo\\SqlBuilder\\Block\\' . $type . $subType;
 
-            if (null === $this->_blocks[$blockName]) {
-                if (class_exists($className)) {
-                    $this->_blocks[$blockName] = new $className($name, $conditions, $glue);
-                } else {
-                    $this->_blocks[$blockName] = new Element($name, $conditions, $glue);
+            if (null === $this->_blocks[$key]) {
+                if (class_exists($className) && !$subType) {
+                    $this->_blocks[$key] = new $className($conditions, $extra);
                 }
             }
 
-            /** @var Element $elem */
-            $elem = $this->_blocks[$blockName];
-            $elem->append($name, $conditions, $extra);
+            /** @var Block $block */
+            $block = $this->_blocks[$key];
+
+            if ($subType && class_exists($className)) {
+                $block = new $className($conditions, $extra);
+                $block->append($conditions, $extra);
+                return $block;
+
+            } elseif ($block instanceof $className) {
+                $block->append($conditions, $extra);
+            }
         }
 
         return $this;
@@ -127,7 +144,7 @@ abstract class Query
     {
         $sql = array();
 
-        /** @var Element $element */
+        /** @var Query $element */
         foreach ($this->_blocks as $element) {
             $sql[] = $element ? $element->__toString() : null;
         }

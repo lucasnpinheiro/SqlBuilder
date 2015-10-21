@@ -16,25 +16,26 @@
 namespace JBZoo\SqlBuilder\Block;
 
 /**
- * Class InsertRow
+ * Class Limit
  * @package JBZoo\SqlBuilder\Block
  */
-class InsertRow extends Block
+class Limit extends Block
 {
     /**
-     * Appends element parts to the internal list.
-     * @param string|array $elements
-     * @param mixed        $extra
-     * @return void
+     * @param array|string $elements
+     * @param null         $extra
      */
     public function append($elements, $extra = null)
     {
-        $elements = (array)$elements;
+        $this->_conditions = array();
 
-        foreach ($elements as $column => $element) {
-            $column = trim(strtolower($column));
+        $length = (int)$elements;
+        $offset = (int)$extra;
 
-            $this->_conditions[$column] = $element;
+        if ($offset) {
+            $this->_conditions = array($offset, $length);
+        } elseif ($length) {
+            $this->_conditions = array($length);
         }
     }
 
@@ -43,10 +44,10 @@ class InsertRow extends Block
      */
     public function __toString()
     {
-        $driver = $this->_getDriver();
-        $colums = $driver->quoteName(array_keys($this->_conditions));
-        $values = $driver->quote(array_values($this->_conditions));
+        if (!$this->_conditions) {
+            return '';
+        }
 
-        return '(' . implode(', ', $colums) . ') VALUES (' . implode(', ', $values) . ')';
+        return 'LIMIT ' . implode(', ', $this->_conditions);
     }
 }

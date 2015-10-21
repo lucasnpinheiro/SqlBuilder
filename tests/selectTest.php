@@ -65,7 +65,9 @@ class SelectTest extends PHPUnit
     {
         $select = $this->_select('table');
         is($select->quote("'qwerty'", false), "''qwerty''");
+        is($select->quoteName("qwerty"), "`qwerty`");
         is($select->escape("'qwerty'"), "\\'qwerty\\'");
+        is($select->clean("?i", 10.123), 10);
     }
 
     public function testFrom()
@@ -82,7 +84,6 @@ class SelectTest extends PHPUnit
         $select = $this->_select(array('table', 'tTable'))
             ->from('table2')
             ->from('table3', 't3');
-
         is('' . $select, "SELECT * FROM `table` AS `tTable`, `table2`, `table3` AS `t3`");
     }
 
@@ -94,8 +95,8 @@ class SelectTest extends PHPUnit
         $select->where('property = 1');
         is('' . $select, "SELECT * FROM `table` WHERE property = 1");
 
-        $select->where('tTable.property = 2');
-        is('' . $select, "SELECT * FROM `table` WHERE property = 1 AND tTable.property = 2");
+        $select->where('tTable.property <> COUNT(`id`)');
+        is('' . $select, "SELECT * FROM `table` WHERE property = 1 AND tTable.property <> COUNT(`id`)");
 
         // empty conditions
         $select
@@ -103,8 +104,11 @@ class SelectTest extends PHPUnit
             ->where('')
             ->where(false)
             ->where(0);
+        is('' . $select, "SELECT * FROM `table` WHERE property = 1 AND tTable.property <> COUNT(`id`)");
 
-        is('' . $select, "SELECT * FROM `table` WHERE property = 1 AND tTable.property = 2");
+        $select->where(array('table.prop', 'IN', '?a'), array(1, 2.3, true, false, null), 'or');
+        is('' . $select, "SELECT * FROM `table` WHERE property = 1 AND tTable.property <> COUNT(`id`) "
+            . "OR `table`.`prop` IN ('1', '2.3', TRUE, FALSE, NULL)");
     }
 
     public function testHavingSimple()
@@ -122,15 +126,60 @@ class SelectTest extends PHPUnit
 
     public function testWhereConditions()
     {
+        $select = $this->_select('table')->where(1);
+        is('' . $select, "SELECT * FROM `table` WHERE 1");
+
+
+        $select = $this->_select('table')->where(null);
+        is('' . $select, "SELECT * FROM `table`");
+
+
+        $select = $this->_select('table')->where('1');
+        is('' . $select, "SELECT * FROM `table` WHERE 1");
+
+        $select = $this->_select('table')->where('prop > 1');
+        is('' . $select, "SELECT * FROM `table` WHERE prop > 1");
+
+
+        $select = $this->_select('table')->where('COUNT(`id`) > 0');
+        is('' . $select, "SELECT * FROM `table` WHERE COUNT(`id`) > 0");
+
+
+        $select = $this->_select('table')->where(array('prop', '<>', '?i'), 10);
+        is('' . $select, "SELECT * FROM `table` WHERE `prop` <> 10");
+
+
+        $select = $this->_select('table')->where(array('prop', '<> ?i'), 10);
+        is('' . $select, "SELECT * FROM `table` WHERE `prop` <> 10");
+
+        $select = $this->_select('table')->where('1')->where(array("group_4", "= ?s"), '"testo"', "or");
+        is('' . $select, "SELECT * FROM `table` WHERE 1 OR `group_4` = '\\\"testo\\\"'");
+
         $select = $this->_select('table')
             ->where('prop_1 = 1')
             ->where('prop_2 = 2', null, 'OR')
-            ->where('prop_3 = ?i', 3, 'AND')
+            ->where('prop_3 = ?i', 3.1, 'AND')
             ->where('prop_4 = ?f', 3.50, 'OR')
             ->where('prop_5 = ?s', '"testo"');
-
         is('' . $select, "SELECT * FROM `table` WHERE prop_1 = 1 OR prop_2 = 2 "
             . "AND prop_3 = 3 OR prop_4 = 3.5 AND prop_5 = '\\\"testo\\\"'");
+    }
+
+    public function testWhereGroups()
+    {
+        $select = $this->_select('table')->whereGroup(array());
+        is('' . $select, "SELECT * FROM `table`");
+
+
+        $select = $this->_select('table')->whereGroup(array(
+            'group_1 = 1',
+            array('group_2 = 2', null, 'and'),
+            array('group_3 = ?i', '3.1', 'or'),
+            array(array('group_4', '= ?s'), '"testo"', 'or'),
+        ));
+        is('' . $select, "SELECT * FROM `table` WHERE "
+            . "(group_1 = 1 AND group_2 = 2 OR group_3 = 3 OR `group_4` = '\\\"testo\\\"')");
+
 
         $select = $this->_select('table')
             ->where('prop_1 = 2')
@@ -141,10 +190,11 @@ class SelectTest extends PHPUnit
                 array('group_4 = ?f', 3.50, 'or'),
                 array('group_5 = ?s', '"testo"'),
             ), 'OR')
-            ->where('prop_2 = 3', null, 'OR');
+            ->whereOR('prop_2 = 3');
         is('' . $select, "SELECT * FROM `table` WHERE prop_1 = 2 "
             . "OR (group_1 = 1 AND group_2 = 2 OR group_3 = 3 OR group_4 = 3.5 AND group_5 = '\\\"testo\\\"') "
             . "OR prop_2 = 3");
+
 
         $select = $this->_select('table')
             ->whereGroup('group_1 = 1', 'OR')
@@ -249,7 +299,7 @@ class SelectTest extends PHPUnit
         is('' . $select, "SELECT * FROM `table` WHERE `string`='string', `float`='123.456', `int`='654'");
 
         $select = $this->_select('table')->where('?u', 'fail');
-        is('' . $select, "SELECT * FROM `table` WHERE");
+        is('' . $select, "SELECT * FROM `table`");
     }
 
     public function testLimit()
@@ -269,6 +319,10 @@ class SelectTest extends PHPUnit
 
     public function testJoin()
     {
+        $select = $this->_select(array('table', 'tTable'))
+            ->join('undefined', 'join_table', 'join_table.item_id = tTable.id');
+        is('' . $select, "SELECT * FROM `table` AS `tTable`");
+
         $select = $this->_select(array('table', 'tTable'))
             ->leftJoin('join_table', 'join_table.item_id = tTable.id');
         is('' . $select, "SELECT * FROM `table` AS `tTable` "
@@ -344,6 +398,9 @@ class SelectTest extends PHPUnit
 
         $select = $this->_select('table')->group('qwerty', false)->group('prop', false);
         is('' . $select, "SELECT * FROM `table` GROUP BY qwerty, prop");
+
+        $select = $this->_select('table')->group('COUNT(`id`)', false);
+        is('' . $select, "SELECT * FROM `table` GROUP BY COUNT(`id`)");
     }
 
     public function testOrder()
@@ -351,18 +408,21 @@ class SelectTest extends PHPUnit
         $select = $this->_select('table')->order('prop');
         is('' . $select, "SELECT * FROM `table` ORDER BY `prop` ASC");
 
-        $select = $this->_select('table')->order('prop', 'asc', true);
-        is('' . $select, "SELECT * FROM `table` ORDER BY `prop` ASC");
+        $select = $this->_select('table')->order('prop', 'desc');
+        is('' . $select, "SELECT * FROM `table` ORDER BY `prop` DESC");
 
-        $select = $this->_select('table')->order('prop', 'desc', false);
-        is('' . $select, "SELECT * FROM `table` ORDER BY prop DESC");
+        $select = $this->_select('table')->order('prop', 'qwerty');
+        is('' . $select, "SELECT * FROM `table`");
+
+        $select = $this->_select('table')->order('COUNT(`id`)', 'desc', false);
+        is('' . $select, "SELECT * FROM `table` ORDER BY COUNT(`id`) DESC");
 
         $select = $this->_select('table')
             ->order('prop1')
             ->order('prop2', 'desc')
-            ->order('prop3', 'ASC', false)
-            ->order('prop4', 'desc', true);
-        is('' . $select, "SELECT * FROM `table` ORDER BY `prop1` ASC, `prop2` DESC, prop3 ASC, `prop4` DESC");
+            ->order('prop2', 'ASC')
+            ->order('prop3', 'desc');
+        is('' . $select, "SELECT * FROM `table` ORDER BY `prop1` ASC, `prop2` ASC, `prop3` DESC");
     }
 
     public function testOptions()

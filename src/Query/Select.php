@@ -16,6 +16,7 @@
 namespace JBZoo\SqlBuilder\Query;
 
 use JBZoo\SqlBuilder\Block\Where;
+use JBZoo\SqlBuilder\Block\WhereGroup;
 use JBZoo\SqlBuilder\Exception;
 
 /**
@@ -46,40 +47,24 @@ class Select extends Query
     protected $_explain = '';
 
     /**
-     * Constructor
      * @param array|string $tableName
+     * @param null         $alias
      * @throws Exception
      */
-    public function __construct($tableName)
+    public function __construct($tableName, $alias = null)
     {
-        if (!$tableName) {
-            throw new Exception('Table name is undefined');
-        }
-
-        if (is_array($tableName)) {
-            if (count($tableName) == 2) {
-                $this->from($tableName[0], $tableName[1]);
-            } else {
-                $this->from($tableName[0]);
-            }
-        } else {
-            $this->from($tableName);
-        }
+        $this->from($tableName, $alias);
     }
 
     /**
      * Select columns
      * @param string|array $columns
+     * @param bool         $quote
      * @return $this
      */
-    public function select($columns)
+    public function select($columns, $quote = true)
     {
-        if ($columns) {
-            $columns = $this->quoteName($columns);
-            $this->_append('select', 'select', $columns);
-        }
-
-        return $this;
+        return $this->_append('Select', $columns, $quote);
     }
 
     /**
@@ -91,14 +76,7 @@ class Select extends Query
      */
     public function from($tableName, $alias = null)
     {
-        $tableName = $this->quoteName($tableName);
-        if ($alias) {
-            $tableName .= ' AS ' . $this->quoteName($alias);
-        }
-
-        $this->_append('from', 'FROM', $tableName);
-
-        return $this;
+        return $this->_append('From', $tableName, $alias);
     }
 
     /**
@@ -110,14 +88,18 @@ class Select extends Query
      */
     public function where($condition, $value = null, $logic = 'AND')
     {
-        if (!$condition) {
-            return $this;
-        }
+        return $this->_append('Where', array($condition, $value), $logic);
+    }
 
-        $condition = $this->clean($condition, $value);
-        $this->_append('where', 'where', $condition, ', ', $logic);
-
-        return $this;
+    /**
+     * Where conditions (alias)
+     * @param string $condition
+     * @param string $value
+     * @return $this
+     */
+    public function whereOR($condition, $value = null)
+    {
+        return $this->where($condition, $value, 'OR');
     }
 
     /**
@@ -129,10 +111,7 @@ class Select extends Query
      */
     public function having($condition, $value = null, $logic = 'AND')
     {
-        $condition = $this->clean($condition, $value);
-        $this->_append('having', 'having', $condition, ', ', $logic);
-
-        return $this;
+        return $this->_append('Having', array($condition, $value), $logic);
     }
 
     /**
@@ -143,26 +122,11 @@ class Select extends Query
      */
     public function whereGroup($conditions, $logic = 'AND')
     {
-        $conditions = (array)$conditions;
-
-        $where = new Where('');
-
-        foreach ($conditions as $condition) {
-            $logicInner = 'AND';
-
-            if (is_array($condition)) {
-                $value      = isset($condition[1]) ? $condition[1] : null;
-                $logicInner = isset($condition[2]) ? $condition[2] : 'AND';
-                $condition  = $this->clean($condition[0], $value);
-
-            } else {
-                $condition = $this->clean($condition);
-            }
-
-            $where->append('', $condition, $logicInner);
+        /** @var WhereGroup $whereGroup */
+        $whereGroup = $this->_append('Where_Group', $conditions, $logic);
+        if ($group = $whereGroup->__toString()) {
+            $this->where('(' . $whereGroup . ')', null, $logic);
         }
-
-        $this->where('(' . $where . ')', null, $logic);
 
         return $this;
     }
@@ -175,20 +139,7 @@ class Select extends Query
      */
     public function limit($length, $offset = 0)
     {
-        $conditions = false;
-
-        if ($offset) {
-            $conditions = (int)$offset . ', ' . (int)$length;
-        } elseif ($length) {
-            $conditions = (int)$length;
-        }
-
-        if ($conditions) {
-            $this->cleanBlock('limit');
-            $this->_append('limit', 'LIMIT', $conditions);
-        }
-
-        return $this;
+        return $this->_append('Limit', $length, $offset);
     }
 
     /**
@@ -200,25 +151,7 @@ class Select extends Query
      */
     public function join($type, $table, $condition)
     {
-        $type  = strtoupper($type);
-        $valid = array('LEFT', 'RIGHT', 'INNER', 'STRAIGHT_JOIN', 'NATURAL LEFT', 'NATURAL RIGHT');
-
-        if (in_array($type, $valid, true)) {
-            if (is_array($table)) {
-                $table = $this->quoteName($table[0]) . ' AS ' . $this->quoteName($table[1]);
-            } else {
-                $table = $this->quoteName($table);
-            }
-
-            // cleanup and build conditions
-            $condition = (array)$condition;
-            $condition = array_filter(array_unique($condition));
-            $condition = $table . ' ON (' . implode(' AND ', $condition) . ')';
-
-            $this->_append('join', $type . ' JOIN', $condition);
-        }
-
-        return $this;
+        return $this->_append('Join', array($table, $condition), $type);
     }
 
     /**
@@ -261,15 +194,7 @@ class Select extends Query
      */
     public function group($column, $quote = true)
     {
-        if ($column) {
-            if ($quote) {
-                $column = $this->quoteName($column);
-            }
-
-            $this->_append('group', 'group by', $column);
-        }
-
-        return $this;
+        return $this->_append('Group', $column, $quote);
     }
 
     /**
@@ -280,18 +205,7 @@ class Select extends Query
      */
     public function order($column, $direction = 'ASC', $quote = true)
     {
-        if ($column) {
-            if ($quote) {
-                $column = $this->quoteName($column);
-            }
-
-            $direction = strtoupper($direction);
-            if (in_array($direction, array('ASC', 'DESC'))) {
-                $this->_append('order', 'order by', $column . ' ' . $direction);
-            }
-        }
-
-        return $this;
+        return $this->_append('Order', array($column, $direction), $quote);
     }
 
     /**
@@ -300,13 +214,7 @@ class Select extends Query
      */
     public function option($optionName)
     {
-        $optionName = (array)$optionName;
-
-        if ($optionName) {
-            $this->_append('options', 'option', $optionName);
-        }
-
-        return $this;
+        return $this->_append('Options', $optionName, 'SELECT');
     }
 
     /**

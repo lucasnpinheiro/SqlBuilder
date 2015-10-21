@@ -15,38 +15,34 @@
 
 namespace JBZoo\SqlBuilder\Block;
 
+use JBZoo\SqlBuilder\Exception;
+
 /**
- * Class InsertRow
+ * Class Into
  * @package JBZoo\SqlBuilder\Block
  */
-class InsertRow extends Block
+class Into extends Block
 {
     /**
-     * Appends element parts to the internal list.
-     * @param string|array $elements
-     * @param mixed        $extra
-     * @return void
+     * @param array|string $elements
+     * @param null         $extra
+     * @throws Exception
      */
     public function append($elements, $extra = null)
     {
-        $elements = (array)$elements;
-
-        foreach ($elements as $column => $element) {
-            $column = trim(strtolower($column));
-
-            $this->_conditions[$column] = $element;
+        if (!$elements) {
+            throw new Exception('Table name is undefined');
         }
+
+        parent::append($elements, $extra);
     }
 
     /**
+     * Magic function to convert the query element to a string
      * @return string
      */
     public function __toString()
     {
-        $driver = $this->_getDriver();
-        $colums = $driver->quoteName(array_keys($this->_conditions));
-        $values = $driver->quote(array_values($this->_conditions));
-
-        return '(' . implode(', ', $colums) . ') VALUES (' . implode(', ', $values) . ')';
+        return 'INTO ' . implode(', ', $this->_getDriver()->quoteName($this->_conditions));
     }
 }

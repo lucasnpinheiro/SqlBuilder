@@ -19,7 +19,7 @@ namespace JBZoo\SqlBuilder\Block;
  * Class InsertMulti
  * @package JBZoo\SqlBuilder\Block
  */
-class InsertMulti extends Element
+class InsertMulti extends Block
 {
     /**
      * @var array
@@ -28,12 +28,11 @@ class InsertMulti extends Element
 
     /**
      * Appends element parts to the internal list.
-     * @param string       $name
      * @param string|array $elements
      * @param mixed        $extra
      * @return void
      */
-    public function append($name, $elements, $extra = null)
+    public function append($elements, $extra = null)
     {
         $elements = (array)$elements;
         reset($elements);
@@ -41,21 +40,21 @@ class InsertMulti extends Element
             $this->_columns = array_keys($header);
         }
 
-        $maxLength = count($this->_columns);
+        if ($maxLength = count($this->_columns)) {
+            $i = 0;
+            foreach ($elements as $column => $data) {
+                $data      = array_values((array)$data);
+                $dataCount = count($data);
 
-        $i = 0;
-        foreach ($elements as $column => $data) {
-            $data      = array_values((array)$data);
-            $dataCount = count($data);
+                if ($dataCount < $maxLength) {
+                    $data = $data + array_fill($dataCount, $maxLength - $dataCount, null);
 
-            if ($dataCount < $maxLength) {
-                $data = $data + array_fill($dataCount, $maxLength - $dataCount, null);
+                } elseif ($dataCount > $maxLength) {
+                    $data = array_slice($data, 0, $maxLength);
+                }
 
-            } elseif ($dataCount > $maxLength) {
-                $data = array_slice($data, 0, $maxLength);
+                $this->_conditions[$i++] = $data;
             }
-
-            $this->_conditions[$i++] = $data;
         }
     }
 
@@ -73,9 +72,9 @@ class InsertMulti extends Element
 
         $values = array();
         foreach ($this->_conditions as $data) {
-            $values[] = '(' . implode(',', $driver->quote($data)) . ')';
+            $values[] = '(' . implode(', ', $driver->quote($data)) . ')';
         }
 
-        return '(' . implode($this->_glue, $colums) . ') VALUES ' . implode(', ', $values);
+        return '(' . implode(', ', $colums) . ') VALUES ' . implode(', ', $values);
     }
 }

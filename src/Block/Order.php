@@ -16,11 +16,13 @@
 namespace JBZoo\SqlBuilder\Block;
 
 /**
- * Class InsertRow
+ * Class Order
  * @package JBZoo\SqlBuilder\Block
  */
-class InsertRow extends Block
+class Order extends Block
 {
+    protected $_validList = array('ASC', 'DESC');
+
     /**
      * Appends element parts to the internal list.
      * @param string|array $elements
@@ -29,12 +31,20 @@ class InsertRow extends Block
      */
     public function append($elements, $extra = null)
     {
-        $elements = (array)$elements;
+        $column    = $elements[0];
+        $direction = strtoupper($elements[1]);
+        $quote     = (bool)$extra;
 
-        foreach ($elements as $column => $element) {
-            $column = trim(strtolower($column));
+        if (!in_array($direction, $this->_validList, true)) {
+            return;
+        }
 
-            $this->_conditions[$column] = $element;
+        if ($column) {
+            if ($quote) {
+                $column = $this->_getDriver()->quoteName($column);
+            }
+
+            $this->_conditions[$column] = $column . ' ' . $direction;
         }
     }
 
@@ -43,10 +53,10 @@ class InsertRow extends Block
      */
     public function __toString()
     {
-        $driver = $this->_getDriver();
-        $colums = $driver->quoteName(array_keys($this->_conditions));
-        $values = $driver->quote(array_values($this->_conditions));
+        if (!$this->_conditions) {
+            return '';
+        }
 
-        return '(' . implode(', ', $colums) . ') VALUES (' . implode(', ', $values) . ')';
+        return 'ORDER BY ' . implode(', ', $this->_conditions);
     }
 }

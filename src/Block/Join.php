@@ -19,34 +19,49 @@ namespace JBZoo\SqlBuilder\Block;
  * Class Join
  * @package JBZoo\SqlBuilder\Block
  */
-class Join extends Element
+class Join extends Block
 {
     /**
-     * @param string $name
-     * @param array  $elements
-     * @param string $glue
+     * @var array
      */
-    public function __construct($name, $elements = array(), $glue = ',')
-    {
-        parent::__construct('', $elements, ' ');
-    }
+    protected $_validTypes = array(
+        'LEFT',
+        'RIGHT',
+        'INNER',
+        'STRAIGHT_JOIN',
+        'NATURAL LEFT',
+        'NATURAL RIGHT',
+    );
 
     /**
      * Appends element parts to the internal list.
-     * @param string       $name
      * @param string|array $elements
      * @param mixed        $extra
      * @return void
      */
-    public function append($name, $elements, $extra = null)
+    public function append($elements, $extra = null)
     {
-        $elements = (array)$elements;
-
-        foreach ($elements as $key => $element) {
-            $elements[$key] = $name . ' ' . $element;
+        $type = strtoupper($extra);
+        if (!in_array($type, $this->_validTypes, true)) {
+            return;
         }
 
-        $this->_conditions = array_merge($this->_conditions, $elements);
+        $driver    = $this->_getDriver();
+        $table     = $elements[0];
+        $condition = $elements[1];
+
+        if (is_array($table)) {
+            $table = $driver->quoteName($table[0]) . ' AS ' . $driver->quoteName($table[1]);
+        } else {
+            $table = $driver->quoteName($table);
+        }
+
+        // cleanup and build conditions
+        $condition = (array)$condition;
+        $condition = array_filter(array_unique($condition));
+        $condition = $type . ' JOIN ' . $table . ' ON (' . implode(' AND ', $condition) . ')';
+
+        $this->_conditions[] = $condition;
     }
 
     /**
@@ -54,6 +69,6 @@ class Join extends Element
      */
     public function __toString()
     {
-        return implode($this->_glue, $this->_conditions);
+        return implode(' ', $this->_conditions);
     }
 }

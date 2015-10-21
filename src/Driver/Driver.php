@@ -150,6 +150,12 @@ abstract class Driver
      */
     public function clean($condition, $value = null)
     {
+        if (is_array($condition)) {
+            $condition = $this->quoteName($condition[0])
+                . (isset($condition[1]) ? ' ' . $condition[1] : '')
+                . (isset($condition[2]) ? ' ' . $condition[2] : '');
+        }
+
         $condition = trim($condition);
 
         if (strpos($condition, '?n') !== false) {

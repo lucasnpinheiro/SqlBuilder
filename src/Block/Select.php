@@ -19,15 +19,35 @@ namespace JBZoo\SqlBuilder\Block;
  * Class Select
  * @package JBZoo\SqlBuilder\Block
  */
-class Select extends Element
+class Select extends Block
 {
     /**
-     * @param string $name
-     * @param array  $elements
-     * @param string $glue
+     * @param array|string $elements
+     * @param null         $extra
      */
-    public function __construct($name, $elements = array(), $glue = ',')
+    public function append($elements, $extra = null)
     {
-        parent::__construct('', $elements, ', ');
+        if ($elements) {
+            $quote  = (bool)$extra;
+            $select = (array)$elements;
+
+            if ($quote) {
+                $select = $this->_getDriver()->quoteName($select);
+            }
+
+            $this->_conditions += $select;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        if (!$this->_conditions) {
+            return '*';
+        }
+
+        return implode(', ', $this->_conditions);
     }
 }
