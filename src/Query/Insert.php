@@ -81,7 +81,7 @@ class Insert extends Query
      */
     public function option($optionName)
     {
-        return $this->_append('Options', $optionName, 'Insert');
+        return $this->_append('Options', $optionName, 'INSERT');
     }
 
     /**

@@ -64,9 +64,11 @@ class SelectTest extends PHPUnit
     public function testTools()
     {
         $select = $this->_select('table');
+
         is($select->quote("'qwerty'", false), "''qwerty''");
         is($select->quoteName("qwerty"), "`qwerty`");
         is($select->escape("'qwerty'"), "\\'qwerty\\'");
+
         is($select->clean("?i", 10.123), 10);
         is($select->clean("?n", 'test'), 'IS NOT NULL');
         is($select->clean("?n", 0), 'IS NULL');
