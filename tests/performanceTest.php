@@ -99,7 +99,7 @@ class PerformanceTest extends PHPUnit
                 ->select(array('table.id', 'category'))
                 // where
                 ->where('property = 1')
-                ->where('property = ?n', 'test_prop')
+                ->where('property = ?e', 'test_prop')
                 ->where('property = ?i', '10')
                 ->where('property = ?f', '10.1')
                 ->where('property = ?s', '`testo`')

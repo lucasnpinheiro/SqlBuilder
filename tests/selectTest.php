@@ -68,6 +68,8 @@ class SelectTest extends PHPUnit
         is($select->quoteName("qwerty"), "`qwerty`");
         is($select->escape("'qwerty'"), "\\'qwerty\\'");
         is($select->clean("?i", 10.123), 10);
+        is($select->clean("?n", 'test'), 'IS NOT NULL');
+        is($select->clean("?n", 0), 'IS NULL');
     }
 
     public function testFrom()
@@ -219,13 +221,13 @@ class SelectTest extends PHPUnit
 
     public function testWhereEscapeIdentifiers()
     {
-        $select = $this->_select('table')->where('tTable.property = ?n', 'property');
+        $select = $this->_select('table')->where('tTable.property = ?e', 'property');
         is('' . $select, "SELECT * FROM `table` WHERE tTable.property = `property`");
 
-        $select = $this->_select('table')->where('tTable.property = ?n', 'tTable.property');
+        $select = $this->_select('table')->where('tTable.property = ?e', 'tTable.property');
         is('' . $select, "SELECT * FROM `table` WHERE tTable.property = `tTable`.`property`");
 
-        $select = $this->_select('table')->where('tTable.property = ?n', 'tTable.property');
+        $select = $this->_select('table')->where('tTable.property = ?e', 'tTable.property');
         is('' . $select, "SELECT * FROM `table` WHERE tTable.property = `tTable`.`property`");
     }
 
@@ -253,7 +255,7 @@ class SelectTest extends PHPUnit
         $select = $this->_select('table')->where('tTable.property = ?f', '');
         is('' . $select, "SELECT * FROM `table` WHERE tTable.property = 0");
 
-        $select = $this->_select('table')->where('tTable.property = ?f', NULL);
+        $select = $this->_select('table')->where('tTable.property = ?f', null);
         is('' . $select, "SELECT * FROM `table` WHERE tTable.property = 0");
     }
 

@@ -158,67 +158,172 @@ abstract class Driver
 
         $condition = trim($condition);
 
-        if (strpos($condition, '?n') !== false) { // SQL Entities
-            $value     = $this->quoteName($value);
-            $condition = str_replace('?n', $value, $condition);
+        if (strpos($condition, '?e') !== false) { // SQL Entities
+            $condition = $this->_cleanEntity($condition, $value);
 
         } elseif (strpos($condition, '?s') !== false) { // any string
-            $condition = str_replace('?s', $this->quote($value), $condition);
+            $condition = $this->_cleanString($condition, $value);
 
         } elseif (strpos($condition, '?i') !== false) { // integer
-            $condition = str_replace('?i', (int)trim($value), $condition);
+            $condition = $this->_cleanInteger($condition, $value);
 
         } elseif (strpos($condition, '?f') !== false) { // float
-            $value     = (float)str_replace(',', '.', trim($value));
-            $condition = str_replace('?f', $value, $condition);
+            $condition = $this->_cleanFloat($condition, $value);
 
         } elseif (strpos($condition, '?b') !== false) { // boolean
-            $value     = (bool)$value ? self::TRUE : self::FALSE;
-            $condition = str_replace('?b', $value, $condition);
+            $condition = $this->_cleanBool($condition, $value);
 
-        } elseif (strpos($condition, '?k') !== false) { // key=>value
-            $query = array();
+        } elseif (strpos($condition, '?n') !== false) { // null
+            $condition = $this->_cleanNull($condition, $value);
 
-            foreach ((array)$value as $key => $value) {
-                if (is_numeric($key)) {
-                    continue;
-                }
+        } elseif (strpos($condition, '?k') !== false) { // list of key=value
+            $condition = $this->_cleanKeyValue($condition, $value);
 
-                if (is_array($value)) {
-                    $value = $this->clean($value[0], $value[1]);
-                }
-
-                $query[] = $this->quoteName($key) . '=' . $value;
-            }
-
-            $condition = str_replace('?k', implode(', ', $query), $condition);
-
-        } elseif (strpos($condition, '?u') !== false) { // update (SET ...)
-            $query = array();
-
-            foreach ((array)$value as $value) {
-                if (is_array($value[1])) {
-                    $value[1] = $this->clean($value[1][0], $value[1][1]);
-                }
-
-                if (in_array($value[1], array(true, false, null), true)) {
-                    $value[1] = $this->quote($value[1]);
-                }
-
-                $query[] = $this->quoteName($value[0]) . '=' . $value[1];
-            }
-
-            $condition = str_replace('?u', implode(', ', $query), $condition);
+        } elseif (strpos($condition, '?u') !== false) { // list for update (SET ...)
+            $condition = $this->_cleanUpdate($condition, $value);
 
         } elseif (strpos($condition, '?a') !== false) { // array
-            $value = (array)$value;
-            if (count($value) === 0) {
-                $value = array(null);
+            $condition = $this->_cleanArray($condition, $value);
+        }
+
+        return $condition;
+    }
+
+    /**
+     * @param string $condition
+     * @param string $value
+     * @return string
+     */
+    protected function _cleanEntity($condition, $value)
+    {
+        $condition = str_replace('?e', $this->quoteName($value), $condition);
+        return $condition;
+    }
+
+    /**
+     * @param string $condition
+     * @param string $value
+     * @return string
+     */
+    protected function _cleanString($condition, $value)
+    {
+        $condition = str_replace('?s', $this->quote($value), $condition);
+        return $condition;
+    }
+
+    /**
+     * @param string $condition
+     * @param string $value
+     * @return string
+     */
+    protected function _cleanInteger($condition, $value)
+    {
+        $condition = str_replace('?i', (int)trim($value), $condition);
+        return $condition;
+    }
+
+    /**
+     * @param string $condition
+     * @param string $value
+     * @return string
+     */
+    protected function _cleanFloat($condition, $value)
+    {
+        $value     = (float)str_replace(',', '.', trim($value));
+        $condition = str_replace('?f', $value, $condition);
+        return $condition;
+    }
+
+    /**
+     * @param string $condition
+     * @param string $value
+     * @return string
+     */
+    protected function _cleanBool($condition, $value)
+    {
+        $value     = (bool)$value ? self::TRUE : self::FALSE;
+        $condition = str_replace('?b', $value, $condition);
+        return $condition;
+    }
+
+    /**
+     * @param string $condition
+     * @param string $value
+     * @return string
+     */
+    protected function _cleanNull($condition, $value)
+    {
+        $value     = (bool)$value ? 'IS NOT NULL' : 'IS NULL';
+        $condition = str_replace('?n', $value, $condition);
+        return $condition;
+    }
+
+    /**
+     * @param string $condition
+     * @param string $value
+     * @return string
+     */
+    protected function _cleanKeyValue($condition, $value)
+    {
+        $query = array();
+
+        foreach ((array)$value as $key => $value) {
+            if (is_numeric($key)) {
+                continue;
             }
 
-            $value     = '(' . implode(', ', $this->quote($value)) . ')';
-            $condition = str_replace('?a', $value, $condition);
+            if (is_array($value)) {
+                $value = $this->clean($value[0], $value[1]);
+            }
+
+            $query[] = $this->quoteName($key) . '=' . $value;
         }
+
+        $condition = str_replace('?k', implode(', ', $query), $condition);
+
+        return $condition;
+    }
+
+    /**
+     * @param string $condition
+     * @param string $value
+     * @return string
+     */
+    protected function _cleanUpdate($condition, $value)
+    {
+        $query = array();
+
+        foreach ((array)$value as $value) {
+            if (is_array($value[1])) {
+                $value[1] = $this->clean($value[1][0], $value[1][1]);
+            }
+
+            if (in_array($value[1], array(true, false, null), true)) {
+                $value[1] = $this->quote($value[1]);
+            }
+
+            $query[] = $this->quoteName($value[0]) . '=' . $value[1];
+        }
+
+        $condition = str_replace('?u', implode(', ', $query), $condition);
+
+        return $condition;
+    }
+
+    /**
+     * @param string $condition
+     * @param string $value
+     * @return string
+     */
+    protected function _cleanArray($condition, $value)
+    {
+        $value = (array)$value;
+        if (count($value) === 0) {
+            $value = array(null);
+        }
+
+        $value     = '(' . implode(', ', $this->quote($value)) . ')';
+        $condition = str_replace('?a', $value, $condition);
 
         return $condition;
     }

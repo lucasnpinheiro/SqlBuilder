@@ -62,7 +62,7 @@ class UpdateTest extends PHPUnit
                 'prop_s'     => array('?s', "'querty'"),
                 'prop_b'     => array('?b', 0),
             ))
-            ->where(array('items.id', '= ?n'), 'month.id')
+            ->where(array('items.id', '= ?e'), 'month.id')
             ->order('items.id', 'desc')
             ->option('ignore')
             ->limit(10);
