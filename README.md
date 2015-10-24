@@ -3,7 +3,7 @@
 #### PHP library description
 
 [![License](https://poser.pugx.org/JBZoo/SqlBuilder/license)](https://packagist.org/packages/JBZoo/SqlBuilder)
-[![Latest Stable Version](https://poser.pugx.org/JBZoo/SqlBuilder/v/stable)](https://packagist.org/packages/JBZoo/SqlBuilder)
+[![Latest Stable Version](https://poser.pugx.org/JBZoo/SqlBuilder/v/stable)](https://packagist.org/packages/JBZoo/SqlBuilder) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/JBZoo/SqlBuilder/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/JBZoo/SqlBuilder/?branch=master)
 
 ### Init builder
 ```php
