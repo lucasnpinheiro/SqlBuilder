@@ -34,6 +34,7 @@ class Limit extends Block
 
         if ($offset) {
             $this->_conditions = array($offset, $length);
+
         } elseif ($length) {
             $this->_conditions = array($length);
         }
@@ -44,7 +45,7 @@ class Limit extends Block
      */
     public function __toString()
     {
-        if (!$this->_conditions) {
+        if (count($this->_conditions) === 0) {
             return '';
         }
 

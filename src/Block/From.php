@@ -61,6 +61,10 @@ class From extends Block
      */
     public function __toString()
     {
+        if (count($this->_conditions) === 0) {
+            return '';
+        }
+
         return 'FROM ' . implode(', ', $this->_conditions);
     }
 }

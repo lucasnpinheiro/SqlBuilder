@@ -63,7 +63,7 @@ class InsertMulti extends Block
      */
     public function __toString()
     {
-        if (!$this->_conditions || !$this->_columns) {
+        if (count($this->_conditions) === 0 || count($this->_columns) === 0) {
             return '';
         }
 

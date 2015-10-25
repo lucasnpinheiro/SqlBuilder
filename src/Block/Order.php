@@ -53,7 +53,7 @@ class Order extends Block
      */
     public function __toString()
     {
-        if (!$this->_conditions) {
+        if (count($this->_conditions) === 0) {
             return '';
         }
 

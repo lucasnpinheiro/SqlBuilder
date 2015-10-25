@@ -41,7 +41,7 @@ class Where extends Block
         $elements = (array)$elements;
         $elements = array_filter(array_unique($elements));
 
-        if (!$elements) {
+        if (count($elements) === 0) {
             return;
         }
 
@@ -63,7 +63,7 @@ class Where extends Block
      */
     public function __toString()
     {
-        if (!$this->_conditions) {
+        if (count($this->_conditions) === 0) {
             return '';
         }
 

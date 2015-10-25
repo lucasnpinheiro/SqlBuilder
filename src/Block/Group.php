@@ -48,6 +48,10 @@ class Group extends Block
      */
     public function __toString()
     {
+        if (count($this->_conditions) === 0) {
+            return '';
+        }
+
         return 'GROUP BY ' . implode(', ', $this->_conditions);
     }
 }

@@ -60,7 +60,7 @@ class WhereGroup extends Block
     public function __toString()
     {
         $conditions = $this->_where->getConditions();
-        if (!$conditions) {
+        if (count($conditions) === 0) {
             return '';
         }
 

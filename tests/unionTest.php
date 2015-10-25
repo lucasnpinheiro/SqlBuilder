@@ -35,10 +35,10 @@ class UnionTest extends PHPUnit
         $select4 = new Select('table4');
 
         $union
-            ->union($select1, 'ALL')
-            ->union(array($select2, $select3), 'distinct')
-            ->union($select4)
-            ->union($select4, 'undefined')
+            ->select($select1, 'ALL')
+            ->select(array($select2, $select3), 'distinct')
+            ->select($select4)
+            ->select($select4, 'undefined')
             ->limit(10)
             ->order('id');
 

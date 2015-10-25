@@ -43,6 +43,10 @@ class InsertRow extends Block
      */
     public function __toString()
     {
+        if (count($this->_conditions) === 0) {
+            return '';
+        }
+
         $driver = $this->_getDriver();
         $colums = $driver->quoteName(array_keys($this->_conditions));
         $values = $driver->quote(array_values($this->_conditions));

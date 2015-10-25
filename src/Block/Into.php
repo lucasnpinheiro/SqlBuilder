@@ -43,6 +43,10 @@ class Into extends Block
      */
     public function __toString()
     {
+        if (count($this->_conditions) === 0) {
+            return '';
+        }
+
         return 'INTO ' . implode(', ', $this->_getDriver()->quoteName($this->_conditions));
     }
 }

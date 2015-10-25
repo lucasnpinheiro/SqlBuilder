@@ -36,7 +36,7 @@ class Union extends Query
      * @param string       $mode
      * @return $this
      */
-    public function union($select, $mode = null)
+    public function select($select, $mode = null)
     {
         return $this->_append('Union', $select, $mode);
     }
