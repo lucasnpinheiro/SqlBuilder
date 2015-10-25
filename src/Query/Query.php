@@ -40,9 +40,9 @@ abstract class Query
 
     /**
      * @param string $blockClassName
-     * @param null   $conditions
-     * @param null   $extra
-     * @return $this|Block
+     * @param mixed  $conditions
+     * @param mixed  $extra
+     * @return $this
      * @throws Exception
      */
     protected function _append($blockClassName, $conditions = null, $extra = null)

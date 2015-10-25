@@ -79,11 +79,11 @@ abstract class Driver
      * Wrap an SQL statement identifier name such as column, table or database names in quotes to prevent injection
      * risks and reserved word conflicts.
      *
-     * @param   mixed $name   The identifier name to wrap in quotes, or an array of identifier names to wrap in quotes.
-     *                        Each type supports dot-notation name.
-     * @param   mixed $as     The AS query part associated to $name. It can be string or array, in latter case it
-     *                        has to be same length of $name;
-     *                        if is null there will not be any AS part for string or array element.
+     * @param   array|string $name The identifier name to wrap in quotes, or an array of identifier names to wrap
+     *                             in quotes. Each type supports dot-notation name.
+     * @param   mixed        $as   The AS query part associated to $name. It can be string or array, in latter case it
+     *                             has to be same length of $name;
+     *                             if is null there will not be any AS part for string or array element.
      * @return  mixed
      */
     public function quoteName($name, $as = null)
@@ -144,8 +144,8 @@ abstract class Driver
     }
 
     /**
-     * @param string $condition
-     * @param string $value
+     * @param array|string $condition
+     * @param array|string $value
      * @return string
      */
     public function clean($condition, $value = null)
@@ -179,7 +179,7 @@ abstract class Driver
         } elseif (strpos($condition, '?k') !== false) { // list of key=value
             $condition = $this->_cleanKeyValue($condition, $value);
 
-        } elseif (strpos($condition, '?u') !== false) { // list for update (SET ...)
+        } elseif (strpos($condition, '?u') !== false) { // list for update or set
             $condition = $this->_cleanUpdate($condition, $value);
 
         } elseif (strpos($condition, '?a') !== false) { // array

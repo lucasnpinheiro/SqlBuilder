@@ -47,7 +47,7 @@ class Select extends Query
 
     /**
      * @param array|string $tableName
-     * @param null         $alias
+     * @param string       $alias
      * @throws Exception
      */
     public function __construct($tableName, $alias = null)
@@ -69,8 +69,8 @@ class Select extends Query
     /**
      * Add a table to the FROM clause of the query.
      *
-     * @param  string $tableName A string or array of table names.
-     * @param  string $alias     Alias table name
+     * @param  array|string $tableName A string or array of table names.
+     * @param  string       $alias     Alias table name
      * @return $this
      */
     public function from($tableName, $alias = null)
@@ -121,10 +121,9 @@ class Select extends Query
      */
     public function whereGroup($conditions, $logic = 'AND')
     {
-        /** @var WhereGroup $whereGroup */
         $whereGroup = $this->_append('Where_Group', $conditions, $logic);
         if ($group = $whereGroup->__toString()) {
-            $this->where('(' . $whereGroup . ')', null, $logic);
+            $this->where('(' . $group . ')', null, $logic);
         }
 
         return $this;
