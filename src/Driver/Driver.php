@@ -79,38 +79,38 @@ abstract class Driver
      * Wrap an SQL statement identifier name such as column, table or database names in quotes to prevent injection
      * risks and reserved word conflicts.
      *
-     * @param   array|string $name The identifier name to wrap in quotes, or an array of identifier names to wrap
-     *                             in quotes. Each type supports dot-notation name.
-     * @param   mixed        $as   The AS query part associated to $name. It can be string or array, in latter case it
-     *                             has to be same length of $name;
-     *                             if is null there will not be any AS part for string or array element.
+     * @param   array|string $name      The identifier name to wrap in quotes, or an array of identifier names to wrap
+     *                                  in quotes. Each type supports dot-notation name.
+     * @param   mixed $aliasName        The AS query part associated to $name. It can be string or array, in latter
+     *                                  case it has to be same length of $name;
+     *                                  if is null there will not be any AS part for string or array element.
      * @return  mixed
      */
-    public function quoteName($name, $as = null)
+    public function quoteName($name, $aliasName = null)
     {
         if (is_string($name)) {
             $quotedName = $this->_quoteNameStr(explode('.', trim($name, '.')));
 
             $quotedAs = '';
 
-            if (!is_null($as)) {
-                settype($as, 'array');
-                $quotedAs .= ' AS ' . $this->_quoteNameStr($as);
+            if (!is_null($aliasName)) {
+                settype($aliasName, 'array');
+                $quotedAs .= ' AS ' . $this->_quoteNameStr($aliasName);
             }
 
             return $quotedName . $quotedAs;
         } else {
             $fin = array();
 
-            if (is_null($as)) {
+            if (is_null($aliasName)) {
                 foreach ($name as $str) {
                     $fin[] = $this->quoteName($str);
                 }
-            } elseif (is_array($name) && (count($name) === count($as))) {
+            } elseif (is_array($name) && (count($name) === count($aliasName))) {
                 $count = count($name);
 
                 for ($i = 0; $i < $count; $i++) {
-                    $fin[] = $this->quoteName($name[$i], $as[$i]);
+                    $fin[] = $this->quoteName($name[$i], $aliasName[$i]);
                 }
             }
 

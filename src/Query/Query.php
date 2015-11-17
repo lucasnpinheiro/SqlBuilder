@@ -104,12 +104,12 @@ abstract class Query
 
     /**
      * @param string $text
-     * @param string $as
+     * @param string $aliasName
      * @return string
      */
-    public function quoteName($text, $as = null)
+    public function quoteName($text, $aliasName = null)
     {
-        return $this->getDriver()->quoteName($text, $as);
+        return $this->getDriver()->quoteName($text, $aliasName);
     }
 
     /**

@@ -33,6 +33,8 @@ class Block
      * @param string|array $elements
      * @param mixed        $extra
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function append($elements, $extra = null)
     {

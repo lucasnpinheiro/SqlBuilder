@@ -41,8 +41,8 @@ class InsertMulti extends Block
         }
 
         if ($maxLength = count($this->_columns)) {
-            $i = 0;
-            foreach ($elements as $column => $data) {
+            $index = 0;
+            foreach ($elements as $data) {
                 $data      = array_values((array)$data);
                 $dataCount = count($data);
 
@@ -53,7 +53,7 @@ class InsertMulti extends Block
                     $data = array_slice($data, 0, $maxLength);
                 }
 
-                $this->_conditions[$i++] = $data;
+                $this->_conditions[$index++] = $data;
             }
         }
     }
