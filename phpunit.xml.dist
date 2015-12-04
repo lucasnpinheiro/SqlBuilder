@@ -15,9 +15,6 @@
         >
 
     <php>
-        <env name="PACKAGE_NAME" value="SqlBuilder"/>
-        <env name="PACKAGE_AUTHOR" value="Denis Smetannikov &lt;denis@jbzoo.com&gt;"/>
-
         <env name="mysql_host" value="127.0.0.1"/>
         <env name="mysql_db" value="sqlbuilder"/>
         <env name="mysql_user" value="root"/>

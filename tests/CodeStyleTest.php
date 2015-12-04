@@ -21,5 +21,6 @@ namespace JBZoo\PHPUnit;
  */
 class CodeStyleTestTest extends Codestyle
 {
-    // Your CS checkings
+    protected $_packageName = 'SqlBuilder';
+    protected $_packageAuthor = 'Denis Smetannikov <denis@jbzoo.com>';
 }
