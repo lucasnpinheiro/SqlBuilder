@@ -83,4 +83,4 @@ after_script:
     fi;'
 
 notifications:
-  email: github@jbzoo.com
+  slack: jbzoo:RPyzxVQZPuPhgvm1Q6fDvK3C
