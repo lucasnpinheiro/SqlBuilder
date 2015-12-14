@@ -31,10 +31,12 @@ class Wordpress extends Driver
      */
     public function __construct($connection = null, $tablePrefix = null)
     {
+        // @codeCoverageIgnoreStart
         $this->_db   = $GLOBALS['wpdb'];
         $tablePrefix = $this->_db->get_blog_prefix();
 
         parent::__construct($connection, $tablePrefix);
+        // @codeCoverageIgnorEnd
     }
 
     /**
@@ -42,6 +44,8 @@ class Wordpress extends Driver
      */
     public function escape($text, $extra = false)
     {
+        // @codeCoverageIgnoreStart
         return $this->_db->_escape($text);
+        // @codeCoverageIgnorEnd
     }
 }

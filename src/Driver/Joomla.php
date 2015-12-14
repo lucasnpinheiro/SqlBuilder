@@ -31,11 +31,13 @@ class Joomla extends Driver
      */
     public function __construct($connection = null, $tablePrefix = null)
     {
+        // @codeCoverageIgnoreStart
         $this->_db   = \JFactory::getDbo();
         $tablePrefix = $this->_db->getPrefix();
         $connection  = $this->_db->getConnection();
 
         parent::__construct($connection, $tablePrefix);
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -43,6 +45,8 @@ class Joomla extends Driver
      */
     public function escape($text, $extra = false)
     {
+        // @codeCoverageIgnoreStart
         return $this->_db->escape($text, $extra);
+        // @codeCoverageIgnoreEnd
     }
 }
