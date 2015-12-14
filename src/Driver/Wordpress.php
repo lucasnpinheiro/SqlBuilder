@@ -16,22 +16,32 @@
 namespace JBZoo\SqlBuilder\Driver;
 
 /**
- * Class MySQLi
+ * Class Wordpress
  * @package JBZoo\SqlBuilder\Driver
  */
-class MySQLi extends Driver
+class Wordpress extends Driver
 {
+    /**
+     * @var \wpdb
+     */
+    protected $_db = null;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct($connection = null, $tablePrefix = null)
+    {
+        $this->_db   = $GLOBALS['wpdb'];
+        $tablePrefix = $this->_db->get_blog_prefix();
+
+        parent::__construct($connection, $tablePrefix);
+    }
+
     /**
      * {@inheritdoc}
      */
     public function escape($text, $extra = false)
     {
-        $result = mysqli_real_escape_string($this->_connection, (string)$text);
-
-        if ($extra) {
-            $result = addcslashes($result, '%_');
-        }
-
-        return $result;
+        return $this->_db->_escape($text);
     }
 }

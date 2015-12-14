@@ -16,22 +16,33 @@
 namespace JBZoo\SqlBuilder\Driver;
 
 /**
- * Class MySQLi
+ * Class Joomla
  * @package JBZoo\SqlBuilder\Driver
  */
-class MySQLi extends Driver
+class Joomla extends Driver
 {
+    /**
+     * @var \JDatabaseDriver
+     */
+    protected $_db = null;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct($connection = null, $tablePrefix = null)
+    {
+        $this->_db   = \JFactory::getDbo();
+        $tablePrefix = $this->_db->getPrefix();
+        $connection  = $this->_db->getConnection();
+
+        parent::__construct($connection, $tablePrefix);
+    }
+
     /**
      * {@inheritdoc}
      */
     public function escape($text, $extra = false)
     {
-        $result = mysqli_real_escape_string($this->_connection, (string)$text);
-
-        if ($extra) {
-            $result = addcslashes($result, '%_');
-        }
-
-        return $result;
+        return $this->_db->escape($text, $extra);
     }
 }
