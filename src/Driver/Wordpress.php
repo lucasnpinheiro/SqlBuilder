@@ -28,6 +28,7 @@ class Wordpress extends Driver
 
     /**
      * {@inheritdoc}
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     public function __construct($connection = null, $tablePrefix = null)
     {
