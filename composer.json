@@ -1,33 +1,59 @@
 {
-    "name": "jbzoo/sqlbuilder",
-    "type": "library",
-    "description": "Simple SQL query constructor",
-    "license": "MIT",
-    "minimum-stability": "stable",
-    "keywords": ["sql", "mysql", "builder", "sql builder", "jbzoo"],
-    "authors": [
+    "name"              : "jbzoo/sqlbuilder",
+    "type"              : "library",
+    "description"       : "Simple SQL query constructor",
+    "license"           : "MIT",
+    "minimum-stability" : "stable",
+    "keywords"          : ["sql", "mysql", "builder", "sql builder", "jbzoo"],
+    "authors"           : [
         {
-            "name": "SmetDenis",
-            "email": "denis@jbzoo.com"
+            "name"  : "SmetDenis",
+            "email" : "denis@jbzoo.com"
         }
     ],
-    "require": {
-        "php": ">=5.3.10"
+    "require"           : {
+        "php" : ">=5.3.10"
     },
-    "require-dev": {
-        "jbzoo/phpunit": "dev-master"
+    "require-dev"       : {
+        "jbzoo/phpunit" : "dev-master"
     },
-    "autoload": {
-        "psr-4": {
-            "JBZoo\\SqlBuilder\\": "src"
+    "autoload"          : {
+        "psr-4" : {
+            "JBZoo\\SqlBuilder\\" : "src"
         }
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.x-dev"
+    "extra"             : {
+        "branch-alias" : {
+            "dev-master" : "1.x-dev"
         }
-    },    
-    "support": {
-        "issues": "https://github.com/JBZoo/SqlBuilder/issues"
+    },
+    "config"            : {
+        "optimize-autoloader" : true
+    },
+    "scripts"           : {
+        "test"       : [
+            "@manifest",
+            "@autoload",
+            "@phpunit",
+            "@phpmd",
+            "@phpcs",
+            "@phpcpd",
+            "@phploc"
+        ],
+        "update-all" : [
+            "composer self-update",
+            "composer update"
+        ],
+        "manifest"   : "composer validate",
+        "autoload"   : "composer dump-autoload --optimize --no-scripts",
+        "phpunit"    : "php ./vendor/phpunit/phpunit/phpunit --configuration ./phpunit.xml.dist",
+        "phpmd"      : "php ./vendor/phpmd/phpmd/src/bin/phpmd ./src text ./vendor/jbzoo/misc/phpmd/jbzoo.xml --verbose",
+        "phpcs"      : "php ./vendor/squizlabs/php_codesniffer/scripts/phpcs ./src --standard=./vendor/jbzoo/misc/phpcs/JBZoo/ruleset.xml --report=full",
+        "phpcpd"     : "php ./vendor/sebastian/phpcpd/phpcpd ./src --verbose",
+        "phploc"     : "php ./vendor/phploc/phploc/phploc ./src --verbose",
+        "coveralls"  : "php ./vendor/satooshi/php-coveralls/bin/coveralls --verbose"
+    },
+    "support"           : {
+        "issues" : "https://github.com/JBZoo/SqlBuilder/issues"
     }
 }

@@ -81,36 +81,36 @@ abstract class Driver
      *
      * @param   mixed $name   The identifier name to wrap in quotes, or an array of identifier names to wrap in quotes.
      *                        Each type supports dot-notation name.
-     * @param   mixed $as     The AS query part associated to $name. It can be string or array, in latter case it
+     * @param   mixed $alias  The AS query part associated to $name. It can be string or array, in latter case it
      *                        has to be same length of $name;
      *                        if is null there will not be any AS part for string or array element.
      * @return  mixed
      */
-    public function quoteName($name, $as = null)
+    public function quoteName($name, $alias = null)
     {
         if (is_string($name)) {
             $quotedName = $this->_quoteNameStr(explode('.', trim($name, '.')));
 
             $quotedAs = '';
 
-            if (!is_null($as)) {
-                settype($as, 'array');
-                $quotedAs .= ' AS ' . $this->_quoteNameStr($as);
+            if (!is_null($alias)) {
+                settype($alias, 'array');
+                $quotedAs .= ' AS ' . $this->_quoteNameStr($alias);
             }
 
             return $quotedName . $quotedAs;
         } else {
             $fin = array();
 
-            if (is_null($as)) {
+            if (is_null($alias)) {
                 foreach ($name as $str) {
                     $fin[] = $this->quoteName($str);
                 }
-            } elseif (is_array($name) && (count($name) === count($as))) {
+            } elseif (is_array($name) && (count($name) === count($alias))) {
                 $count = count($name);
 
                 for ($i = 0; $i < $count; $i++) {
-                    $fin[] = $this->quoteName($name[$i], $as[$i]);
+                    $fin[] = $this->quoteName($name[$i], $alias[$i]);
                 }
             }
 
